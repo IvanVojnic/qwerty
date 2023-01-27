@@ -14,12 +14,17 @@ type UserAct interface {
 	GetAllUsers(context.Context) ([]models.User, error)
 }
 
+type AuthUser interface {
+}
+
 type Repository struct {
 	UserAct
+	AuthUser
 }
 
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
-		UserAct: NewUserActPostgres(db),
+		UserAct:  NewUserActPostgres(db),
+		AuthUser: NewUserAuthPostgres(db),
 	}
 }

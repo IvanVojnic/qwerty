@@ -7,7 +7,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "3000:5555"
+      - "3000:40000"
     environment:
       - pUrl=postgres://postgres:postgres@host.docker.internal:5432/postgres?sslmode=disable
   postgres:

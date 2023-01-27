@@ -61,7 +61,7 @@ func (r *UserActPostgres) GetAllUsers(ctx context.Context) ([]models.User, error
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get all user": err,
-			"user ID":            rows,
+			"rows":               rows,
 		}).Info("SQL QUERY")
 	}
 	defer rows.Close()
@@ -77,7 +77,7 @@ func (r *UserActPostgres) GetAllUsers(ctx context.Context) ([]models.User, error
 		users = append(users, user)
 	}
 	if errRows := rows.Err(); errRows != nil {
-		log.Fatal(errRows)
+		//log.Fatal(errRows)
 	}
 	return users, err
 }

@@ -47,6 +47,10 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	rAct.POST("/update", h.updateUser)
 	rAct.GET("/delete", h.deleteUser)
 	rAct.GET("/getAllUsers", h.getAllUsers)
-	router.Logger.Fatal(router.Start(":40000"))
+
+	rVerified := router.Group("/verified")
+	rVerified.POST("/createUser", h.createVerifiedUser)
+	rVerified.GET("/getVerifiedUser", h.getVerifiedUser)
+	router.Logger.Fatal(router.Start":40000"))
 	return router
 }
