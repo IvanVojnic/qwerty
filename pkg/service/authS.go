@@ -3,10 +3,14 @@ package service
 import (
 	"EFpractic2/models"
 	"EFpractic2/pkg/repository"
+	"context"
 	"crypto/sha1"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt"
+	log "github.com/sirupsen/logrus"
+
+	//"github.com/golang-jwt/jwt"
+	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
@@ -20,7 +24,7 @@ type tokenClaims struct {
 }
 
 type AuthService struct {
-	repo repository.UserAct
+	repo repository.Authorization
 }
 
 func (s *AuthService) ParseToken(accessToken string) (int, error) {
@@ -40,36 +44,51 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 	return claims.UserId, nil
 }
 
-func NewAuthService(repo repository.UserAct) *AuthService {
+func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateUserVerified(user models.User) (int, error) {
+func (s *AuthService) CreateUserVerified(ctx context.Context, user models.User) (string, string, error) {
 	user.Password = generatePasswordHash(user.Password)
-	return s.repo.CreateUser(user)
+	rt, id, err := s.repo.CreateAuthUser(ctx, &user)
+	if err != nil {
+		return "", "", fmt.Errorf("Error create auth user %w", err)
+	}
+	at, errGT := s.GenerateToken(id)
+	if errGT != nil {
+		log.WithFields(log.Fields{
+			"ERROR":        err,
+			"access token": at,
+		}).Info("Error while generating access token")
+	}
+	//return s.repo.CreateAuthUser(ctx, &user)
+	return rt, at, err
 }
 
-func (s *AuthService) GetUserVerified(email, password string) (int, error) {
-	user, err := s.repo.GetUser(email, generatePasswordHash(password))
+func (s *AuthService) GetUserVerified(ctx context.Context, at string, rt string) (models.User, error) {
+	userIdByAT, err := s.ParseToken(at)
+	var user models.User
 	if err != nil {
-		return -1, err
+		return user, err
 	}
-	return user.Id, nil
+	userIdByRT, err := s.repo.GetUserId(ctx, rt)
+	if userIdByAT == userIdByRT {
+		return s.repo.GetAuthUser(ctx, userIdByRT)
+	}
+	//return user.Id, nil
+	return 1, nil
 }
 
-func (s *AuthService) GenerateToken(email, password string) (string, error) {
-	user, err := s.repo.GetUserToGT(email, generatePasswordHash(password))
-	if err != nil {
-		return "", err
-	}
+func (s *AuthService) GenerateToken(id int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		user.Id,
+		id,
 	})
 	return token.SignedString([]byte(signingKey))
+	//return "qwerty", nil
 }
 
 func generatePasswordHash(password string) string {

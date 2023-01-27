@@ -7,6 +7,11 @@ import (
 	"net/http"
 )
 
+type Tokens struct {
+	accessToken  string
+	refreshToken string
+}
+
 func (h *Handler) createVerifiedUser(c echo.Context) error {
 	user := models.User{}
 	err := c.Bind(&user)
@@ -17,13 +22,36 @@ func (h *Handler) createVerifiedUser(c echo.Context) error {
 		}).Info("Bind json")
 		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
 	}
-	err = h.services.UserAct.CreateUser(c.Request().Context(), user)
+	rt, at, err := h.services.Authorization.CreateUserVerified(c.Request().Context(), user)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error create user": err,
-			"user":              user,
+			"access token":      at,
+			"refresh token":     rt,
 		}).Info("CREATE USER request")
 		return echo.NewHTTPError(http.StatusBadRequest, "user creating failed")
 	}
 	return c.String(http.StatusOK, "user created")
+}
+
+func (h *Handler) getVerifiedUser(c echo.Context) error {
+	var tokens Tokens
+	err := c.Bind(&tokens)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error Bind json while creating user": err,
+			"tokens":                              tokens,
+		}).Info("Bind json")
+		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
+	}
+	//at := c.QueryParam("access_token")
+	user, err := h.services.Authorization.GetUserVerified(c.Request().Context(), tokens.accessToken, tokens.refreshToken)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error get user": err,
+			"user":           user,
+		}).Info("GET USER request")
+		return echo.NewHTTPError(http.StatusBadRequest, "user getting failed")
+	}
+	return c.JSON(http.StatusOK, user)
 }

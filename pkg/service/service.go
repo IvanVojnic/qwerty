@@ -14,19 +14,21 @@ type UserAct interface {
 	GetAllUsers(context.Context) ([]models.User, error)
 }
 
-type UserVerifiedAct interface {
-	CreateUserVerified(user models.User) (int, error)
-	GetUserVerified(email, password string) (int, error)
+type Authorization interface {
+	CreateUserVerified(context.Context, models.User) (string, string, error)
+	GetUserVerified(context.Context, string, string) (int, error)
+	GenerateToken(id int) (string, error)
+	ParseToken(accessToken string) (int, error)
 }
 
 type Service struct {
 	UserAct
-	UserVerifiedAct
+	Authorization
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		UserAct:         NewUserActSrv(repos.UserAct),
-		UserVerifiedAct: NewAuthService(repos.AuthUser),
+		UserAct:       NewUserActSrv(repos.UserAct),
+		Authorization: NewAuthService(repos.Authorization),
 	}
 }

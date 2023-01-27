@@ -14,17 +14,20 @@ type UserAct interface {
 	GetAllUsers(context.Context) ([]models.User, error)
 }
 
-type AuthUser interface {
+type Authorization interface {
+	CreateAuthUser(context.Context, *models.User) (string, int, error)
+	GetAuthUser(context.Context, int) (models.User, error)
+	GetUserId(ctx context.Context, token string) (int, error)
 }
 
 type Repository struct {
 	UserAct
-	AuthUser
+	Authorization
 }
 
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
-		UserAct:  NewUserActPostgres(db),
-		AuthUser: NewUserAuthPostgres(db),
+		UserAct:       NewUserActPostgres(db),
+		Authorization: NewUserAuthPostgres(db),
 	}
 }

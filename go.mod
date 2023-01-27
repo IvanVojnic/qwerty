@@ -8,9 +8,11 @@ require (
 	github.com/labstack/echo/v4 v4.10.0
 )
 
+require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	//github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/puddle/v2 v2.1.2 // indirect
