@@ -17,7 +17,7 @@ type UserAct interface {
 type Authorization interface {
 	CreateAuthUser(context.Context, *models.UserAuth) (string, int, error)
 	GetAuthUser(context.Context, int) (models.UserAuth, error)
-	GetUserId(ctx context.Context, token string) (int, error)
+	GetUserId(ctx context.Context, userId int) (models.UserAuth, error)
 }
 
 type Repository struct {

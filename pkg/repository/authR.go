@@ -20,7 +20,7 @@ func NewUserAuthPostgres(db *pgxpool.Pool) *UserAuthPostgres {
 func (r *UserAuthPostgres) CreateAuthUser(ctx context.Context, user *models.UserAuth) (string, int, error) {
 	rt := generateRT()
 	var id int
-	sqlRow := `insert into userauth (name, age, regular, password, refreshtoken) values($1, $2, $3, $4, $5) returning id`
+	sqlRow := `insert into usersauth (name, age, regular, password, refreshtoken) values($1, $2, $3, $4, $5) returning id`
 	err := r.db.QueryRow(ctx, sqlRow, user.UserName, user.UserAge, user.UserIsRegular, user.Password, rt).Scan(&id)
 	if err != nil {
 		return " ", 0, fmt.Errorf("error while user creating: %v", err)
@@ -47,12 +47,12 @@ func generateRT() string {
 	return str
 }
 
-func (r *UserAuthPostgres) GetUserId(ctx context.Context, token string) (int, error) {
+func (r *UserAuthPostgres) GetUserId(ctx context.Context, userId int) (models.UserAuth, error) {
 	user := models.UserAuth{}
-	err := r.db.QueryRow(ctx, "select id from users where refreshToken=$1", token).Scan(
+	err := r.db.QueryRow(ctx, "select usersauth.name, usersauth from usersauth where id=$1", userId).Scan(
 		&user.UserId, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password)
 	if err != nil {
-		return user.UserId, fmt.Errorf("get user error %w", err)
+		return user, fmt.Errorf("get user error %w", err)
 	}
-	return user.UserId, nil
+	return user, nil
 }

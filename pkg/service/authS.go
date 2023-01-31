@@ -67,14 +67,14 @@ func (s *AuthService) CreateUserVerified(ctx context.Context, user models.UserAu
 
 func (s *AuthService) GetUserVerified(ctx context.Context, at string, rt string) (models.UserAuth, error) {
 	userIdByAT, err := s.ParseToken(at)
-	var user models.UserAuth
+	//var user models.UserAuth
 	if err != nil {
-		return user, err
+		return models.UserAuth{}, err
 	}
-	userIdByRT, err := s.repo.GetUserId(ctx, rt)
-	if userIdByAT == userIdByRT {
+	user, err := s.repo.GetUserId(ctx, userIdByAT)
+	/*if userIdByAT == userIdByRT {
 		return s.repo.GetAuthUser(ctx, userIdByRT)
-	}
+	}*/
 	//return user.Id, nil
 	return user, nil
 }
@@ -90,6 +90,38 @@ func (s *AuthService) GenerateToken(id int) (string, error) {
 	return token.SignedString([]byte(signingKey))
 	//return "qwerty", nil
 }
+
+/*
+accessClaims := &CustomClaims{
+		user.Login,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 15)),
+		},
+	}
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
+	accessTokenStr, err = accessToken.SignedString(u.jwtKey)
+	if err != nil {
+		return "", "", fmt.Errorf("userService - CreateJWT - SignedString: %w", err)
+	}
+
+	refreshClaims := &CustomClaims{
+		user.Login,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 10)),
+		},
+	}
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+	refreshTokenStr, err = refreshToken.SignedString(u.jwtKey)
+	if err != nil {
+		return "", "", fmt.Errorf("userService - CreateJWT - SignedString: %w", err)
+	}
+
+	err = u.rps.RefreshUser(ctx, user.Login, refreshTokenStr)
+	if err != nil {
+		return "", "", fmt.Errorf("userService - CreateJWT - RefreshUser: %w", err)
+	}
+	return
+*/
 
 func generatePasswordHash(password string) string {
 	hash := sha1.New()
