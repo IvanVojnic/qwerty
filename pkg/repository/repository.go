@@ -15,10 +15,11 @@ type UserAct interface {
 }
 
 type Authorization interface {
-	CreateAuthUser(context.Context, *models.UserAuth) (string, int, error)
+	CreateAuthUser(context.Context, *models.UserAuth) (int, error)
 	GetAuthUser(context.Context, int) (models.UserAuth, error)
 	GetUserById(ctx context.Context, userId int) (models.UserAuth, error)
 	GetUserWithRefreshToken(ctx context.Context, rt string) (models.UserAuth, error)
+	UpdateRefreshToken(ctx context.Context, rt string, id int) error
 }
 
 type Repository struct {

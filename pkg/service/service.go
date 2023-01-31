@@ -16,7 +16,7 @@ type UserAct interface {
 
 type Authorization interface {
 	CreateUserVerified(context.Context, models.UserAuth) (string, string, error)
-	GetUserVerified(context.Context, string, string) (models.UserAuth, string, error)
+	GetUserVerified(context.Context, int /*string, string*/) (models.UserAuth, error)
 }
 
 type Service struct {

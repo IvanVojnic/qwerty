@@ -19,21 +19,14 @@ func NewUserAuthPostgres(db *pgxpool.Pool) *UserAuthPostgres {
 	return &UserAuthPostgres{db: db}
 }
 
-func (r *UserAuthPostgres) CreateAuthUser(ctx context.Context, user *models.UserAuth) (string, int, error) {
+func (r *UserAuthPostgres) CreateAuthUser(ctx context.Context, user *models.UserAuth) (int, error) {
 	var id int
 	sqlRow := `insert into usersauth (name, age, regular, password, refreshtoken) values($1, $2, $3, $4, $5) returning id`
-	err := r.db.QueryRow(ctx, sqlRow, user.UserName, user.UserAge, user.UserIsRegular, user.Password, "test").Scan(&id)
+	err := r.db.QueryRow(ctx, sqlRow, user.UserName, user.UserAge, user.UserIsRegular, user.Password, "").Scan(&id)
 	if err != nil {
-		return " ", 0, fmt.Errorf("error while user creating: %v", err)
+		return 0, fmt.Errorf("error while user creating: %v", err)
 	}
-	rt, errTU := r.UpdateRefreshToken(ctx, id)
-	if errTU != nil {
-		log.WithFields(log.Fields{
-			"ERROR":         errTU,
-			"refresh token": rt,
-		}).Info("Error while generating refresh token")
-	}
-	return rt, id, err
+	return id, err
 }
 
 func (r *UserAuthPostgres) GetAuthUser(ctx context.Context, id int) (models.UserAuth, error) {
@@ -41,16 +34,12 @@ func (r *UserAuthPostgres) GetAuthUser(ctx context.Context, id int) (models.User
 	return user, nil
 }
 
-func (r *UserAuthPostgres) UpdateRefreshToken(ctx context.Context, id int) (string, error) {
-	rt, err := utils.GenerateToken(id, true)
-	if err != nil {
-		return "", fmt.Errorf("get user error %w", err)
-	}
+func (r *UserAuthPostgres) UpdateRefreshToken(ctx context.Context, rt string, id int) error {
 	_, errInsert := r.db.Exec(ctx, "UPDATE usersauth SET refreshtoken = $1 WHERE id = $2", rt, id)
 	if errInsert != nil {
-		return "", fmt.Errorf("update user error %w", err)
+		return fmt.Errorf("update user error %w", errInsert)
 	}
-	return rt, err
+	return nil
 }
 
 func generateRT() string {

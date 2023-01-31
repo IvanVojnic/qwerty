@@ -35,7 +35,7 @@ func (r *UserActPostgres) UpdateUser(ctx context.Context, user models.User) erro
 
 func (r *UserActPostgres) GetUser(ctx context.Context, userId int) (models.User, error) {
 	user := models.User{}
-	err := r.db.QueryRow(ctx, "select * from users where id=$1", userId).Scan(
+	err := r.db.QueryRow(ctx, "select users.id, users.name, users.age, users.regular, users.password from users where id=$1", userId).Scan(
 		&user.UserId, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password)
 	if err != nil {
 		return user, fmt.Errorf("get user error %w", err)
@@ -56,7 +56,7 @@ func (r *UserActPostgres) DeleteUser(ctx context.Context, userId int) error {
 
 func (r *UserActPostgres) GetAllUsers(ctx context.Context) ([]models.User, error) {
 	users := make([]models.User, 0)
-	rows, err := r.db.Query(ctx, "select * from users")
+	rows, err := r.db.Query(ctx, "select users.id, users.name, users.age, users.regular, users.password from users")
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get all user": err,

@@ -22,22 +22,33 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 
 func (s *AuthService) CreateUserVerified(ctx context.Context, user models.UserAuth) (string, string, error) {
 	user.Password = generatePasswordHash(user.Password)
-	rt, id, err := s.repo.CreateAuthUser(ctx, &user)
+	id, err := s.repo.CreateAuthUser(ctx, &user)
 	if err != nil {
 		return "", "", fmt.Errorf("Error create auth user %w", err)
 	}
-	at, errGT := utils.GenerateToken(id, false)
-	if errGT != nil {
+	at, errAT := utils.GenerateToken(id, false)
+	if errAT != nil {
 		log.WithFields(log.Fields{
-			"ERROR":        err,
+			"ERROR":        errAT,
 			"access token": at,
 		}).Info("Error while generating access token")
+	}
+	rt, errRT := utils.GenerateToken(id, true)
+	if errRT != nil {
+		log.WithFields(log.Fields{
+			"ERROR":        errRT,
+			"access token": rt,
+		}).Info("Error while generating access token")
+	}
+	errRtInsert := s.repo.UpdateRefreshToken(ctx, rt, id)
+	if errRtInsert != nil {
+
 	}
 	return rt, at, err
 }
 
-func (s *AuthService) GetUserVerified(ctx context.Context, at string, rt string) (models.UserAuth, string, error) {
-	userIdByAT, err := utils.ParseToken(at)
+func (s *AuthService) GetUserVerified(ctx context.Context, id int /*at string, rt string*/) (models.UserAuth, error) {
+	/*userIdByAT, err := utils.ParseToken(at)
 	var user models.UserAuth
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -56,9 +67,9 @@ func (s *AuthService) GetUserVerified(ctx context.Context, at string, rt string)
 			}).Info("Error while generating access token")
 		}
 		return user, at, err
-	}
-	user, err = s.repo.GetUserById(ctx, userIdByAT)
-	return user, at, err
+	}*/
+	user, err := s.repo.GetUserById(ctx, id)
+	return user, err
 }
 
 func generatePasswordHash(password string) string {
