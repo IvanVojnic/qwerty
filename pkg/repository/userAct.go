@@ -44,11 +44,8 @@ func (r *UserActPostgres) GetUser(ctx context.Context, userId int) (models.User,
 }
 
 func (r *UserActPostgres) DeleteUser(ctx context.Context, userId int) error {
-	commandTag, err := r.db.Exec(ctx, "delete from users where id=$1", userId)
+	_, err := r.db.Exec(ctx, "delete from users where id=$1", userId)
 	if err != nil {
-		return err
-	}
-	if commandTag.RowsAffected() != 1 {
 		return fmt.Errorf("delete user error %w", err)
 	}
 	return nil
@@ -76,7 +73,7 @@ func (r *UserActPostgres) GetAllUsers(ctx context.Context) ([]models.User, error
 		users = append(users, user)
 	}
 	if errRows := rows.Err(); errRows != nil {
-		//log.Fatal(errRows)
+		fmt.Errorf("get all users error %w", errRows)
 	}
 	return users, err
 }

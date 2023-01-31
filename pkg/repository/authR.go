@@ -5,10 +5,9 @@ import (
 	"EFpractic2/pkg/utils"
 	"context"
 	"fmt"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	log "github.com/sirupsen/logrus"
-	"math/rand"
-	"strings"
 )
 
 type UserAuthPostgres struct {
@@ -42,20 +41,6 @@ func (r *UserAuthPostgres) UpdateRefreshToken(ctx context.Context, rt string, id
 	return nil
 }
 
-func generateRT() string {
-	sec1 := rand.New(rand.NewSource(60))
-	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-		"abcdefghijklmnopqrstuvwxyz" +
-		"0123456789")
-	length := 8
-	var b strings.Builder
-	for i := 0; i < length; i++ {
-		b.WriteRune(chars[sec1.Intn(len(chars))])
-	}
-	str := b.String() // Например "ExcbsVQs"
-	return str
-}
-
 func (r *UserAuthPostgres) GetUserById(ctx context.Context, userId int) (models.UserAuth, error) {
 	user := models.UserAuth{}
 	err := r.db.QueryRow(ctx, "select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where id=$1", userId).Scan(
@@ -84,6 +69,20 @@ func (r *UserAuthPostgres) GetUserWithRefreshToken(ctx context.Context, rt strin
 		}).Info("Error while getting user")
 		return models.UserAuth{}, errRT
 	}
-
 	return user, nil
 }
+
+/*
+func generateRT() string {
+	sec1 := rand.New(rand.NewSource(60))
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+		"abcdefghijklmnopqrstuvwxyz" +
+		"0123456789")
+	length := 8
+	var b strings.Builder
+	for i := 0; i < length; i++ {
+		b.WriteRune(chars[sec1.Intn(len(chars))])
+	}
+	str := b.String() // Например "ExcbsVQs"
+	return str
+}*/
