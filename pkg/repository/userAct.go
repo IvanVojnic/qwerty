@@ -26,11 +26,10 @@ func (r *UserActPostgres) CreateUser(ctx context.Context, user models.User) erro
 }
 
 func (r *UserActPostgres) UpdateUser(ctx context.Context, user models.User) error {
-	res, err := r.db.Exec(ctx, "UPDATE users SET name = $1, age = $2, regular =$3 WHERE id = $4", user.UserName, user.UserAge, user.UserIsRegular, user.UserId)
+	_, err := r.db.Exec(ctx, "UPDATE users SET name = $1, age = $2, regular =$3 WHERE id = $4", user.UserName, user.UserAge, user.UserIsRegular, user.UserId)
 	if err != nil {
 		return fmt.Errorf("update user error %w", err)
 	}
-	fmt.Printf("[update a row] updated num rows: %d", res.RowsAffected())
 	return nil
 }
 
