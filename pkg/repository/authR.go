@@ -54,5 +54,6 @@ func (r *UserAuthPostgres) GetUserId(ctx context.Context, userId int) (models.Us
 	if err != nil {
 		return user, fmt.Errorf("get user error %w", err)
 	}
+
 	return user, nil
 }
