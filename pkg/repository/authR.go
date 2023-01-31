@@ -17,20 +17,19 @@ func NewUserAuthPostgres(db *pgxpool.Pool) *UserAuthPostgres {
 	return &UserAuthPostgres{db: db}
 }
 
-func (r *UserAuthPostgres) CreateAuthUser(ctx context.Context, user *models.User) (string, int, error) {
+func (r *UserAuthPostgres) CreateAuthUser(ctx context.Context, user *models.UserAuth) (string, int, error) {
 	rt := generateRT()
 	var id int
-	sqlRow := `insert into usersAuth (name, age, regular, password, refreshToken) values($1, $2, $3, $4, $5) returning id`
+	sqlRow := `insert into userauth (name, age, regular, password, refreshtoken) values($1, $2, $3, $4, $5) returning id`
 	err := r.db.QueryRow(ctx, sqlRow, user.UserName, user.UserAge, user.UserIsRegular, user.Password, rt).Scan(&id)
-	//	user.UserName, user.UserAge, user.UserIsRegular, user.Password, rt)
 	if err != nil {
 		return " ", 0, fmt.Errorf("error while user creating: %v", err)
 	}
 	return rt, id, err
 }
 
-func (r *UserAuthPostgres) GetAuthUser(ctx context.Context, id int) (models.User, error) {
-	var user = models.User{}
+func (r *UserAuthPostgres) GetAuthUser(ctx context.Context, id int) (models.UserAuth, error) {
+	var user = models.UserAuth{}
 	return user, nil
 }
 
@@ -49,7 +48,7 @@ func generateRT() string {
 }
 
 func (r *UserAuthPostgres) GetUserId(ctx context.Context, token string) (int, error) {
-	user := models.User{}
+	user := models.UserAuth{}
 	err := r.db.QueryRow(ctx, "select id from users where refreshToken=$1", token).Scan(
 		&user.UserId, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password)
 	if err != nil {

@@ -48,7 +48,7 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateUserVerified(ctx context.Context, user models.User) (string, string, error) {
+func (s *AuthService) CreateUserVerified(ctx context.Context, user models.UserAuth) (string, string, error) {
 	user.Password = generatePasswordHash(user.Password)
 	rt, id, err := s.repo.CreateAuthUser(ctx, &user)
 	if err != nil {
@@ -65,9 +65,9 @@ func (s *AuthService) CreateUserVerified(ctx context.Context, user models.User) 
 	return rt, at, err
 }
 
-func (s *AuthService) GetUserVerified(ctx context.Context, at string, rt string) (models.User, error) {
+func (s *AuthService) GetUserVerified(ctx context.Context, at string, rt string) (models.UserAuth, error) {
 	userIdByAT, err := s.ParseToken(at)
-	var user models.User
+	var user models.UserAuth
 	if err != nil {
 		return user, err
 	}
@@ -76,7 +76,7 @@ func (s *AuthService) GetUserVerified(ctx context.Context, at string, rt string)
 		return s.repo.GetAuthUser(ctx, userIdByRT)
 	}
 	//return user.Id, nil
-	return 1, nil
+	return user, nil
 }
 
 func (s *AuthService) GenerateToken(id int) (string, error) {

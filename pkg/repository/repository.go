@@ -15,8 +15,8 @@ type UserAct interface {
 }
 
 type Authorization interface {
-	CreateAuthUser(context.Context, *models.User) (string, int, error)
-	GetAuthUser(context.Context, int) (models.User, error)
+	CreateAuthUser(context.Context, *models.UserAuth) (string, int, error)
+	GetAuthUser(context.Context, int) (models.UserAuth, error)
 	GetUserId(ctx context.Context, token string) (int, error)
 }
 

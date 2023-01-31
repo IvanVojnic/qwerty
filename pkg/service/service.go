@@ -15,8 +15,8 @@ type UserAct interface {
 }
 
 type Authorization interface {
-	CreateUserVerified(context.Context, models.User) (string, string, error)
-	GetUserVerified(context.Context, string, string) (int, error)
+	CreateUserVerified(context.Context, models.UserAuth) (string, string, error)
+	GetUserVerified(context.Context, string, string) (models.UserAuth, error)
 	GenerateToken(id int) (string, error)
 	ParseToken(accessToken string) (int, error)
 }

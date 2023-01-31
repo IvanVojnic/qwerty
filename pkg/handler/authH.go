@@ -13,7 +13,7 @@ type Tokens struct {
 }
 
 func (h *Handler) createVerifiedUser(c echo.Context) error {
-	user := models.User{}
+	user := models.UserAuth{}
 	err := c.Bind(&user)
 	if err != nil {
 		log.WithFields(log.Fields{
