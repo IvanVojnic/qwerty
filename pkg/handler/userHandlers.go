@@ -9,87 +9,87 @@ import (
 	"strconv"
 )
 
-func (h *Handler) createUser(c echo.Context) error {
-	user := models.User{}
-	err := c.Bind(&user)
+func (h *Handler) createBook(c echo.Context) error {
+	book := models.Book{}
+	err := c.Bind(&book)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Error Bind json while creating user": err,
-			"user":                                user,
+			"Error Bind json while creating book": err,
+			"book":                                book,
 		}).Info("Bind json")
 		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
 	}
-	err = h.services.UserAct.CreateUser(c.Request().Context(), user)
+	err = h.services.BookAct.CreateBook(c.Request().Context(), book)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Error create user": err,
-			"user":              user,
-		}).Info("CREATE USER request")
-		return echo.NewHTTPError(http.StatusBadRequest, "user creating failed")
+			"Error create book": err,
+			"book":              book,
+		}).Info("CREATE BOOK request")
+		return echo.NewHTTPError(http.StatusBadRequest, "book creating failed")
 	}
-	return c.String(http.StatusOK, "user created")
+	return c.String(http.StatusOK, "book created")
 }
 
-func (h *Handler) getUser(c echo.Context) error {
-	userId := c.QueryParam("id")
-	var userIdNum int
-	userIdNum, _ = strconv.Atoi(userId)
-	user, err := h.services.UserAct.GetUser(c.Request().Context(), userIdNum)
+func (h *Handler) getBook(c echo.Context) error {
+	bookId := c.QueryParam("id")
+	var bookIdNum int
+	bookIdNum, _ = strconv.Atoi(bookId)
+	book, err := h.services.BookAct.GetBook(c.Request().Context(), bookIdNum)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Error get user": err,
-			"user":           user,
-		}).Info("GET USER request")
-		return echo.NewHTTPError(http.StatusBadRequest, "user getting failed")
+			"Error get book": err,
+			"book":           book,
+		}).Info("GET BOOK request")
+		return echo.NewHTTPError(http.StatusBadRequest, "book getting failed")
 	}
-	fmt.Sprintf("user: %s", user)
-	return c.JSON(http.StatusOK, user)
+	fmt.Sprintf("book: %s", book)
+	return c.JSON(http.StatusOK, book)
 }
 
-func (h *Handler) updateUser(c echo.Context) error {
-	user := models.User{}
-	err := c.Bind(&user)
+func (h *Handler) updateBook(c echo.Context) error {
+	book := models.Book{}
+	err := c.Bind(&book)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Error Bind json while updating user": err,
-			"user":                                user,
+			"Error Bind json while updating book": err,
+			"book":                                book,
 		}).Info("Bind json")
 		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
 	}
-	err = h.services.UserAct.UpdateUser(c.Request().Context(), user)
+	err = h.services.BookAct.UpdateBook(c.Request().Context(), book)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Error update user": err,
-			"user":              user,
-		}).Info("UPDATE USER request")
-		return echo.NewHTTPError(http.StatusBadRequest, "user updating failed")
+			"Error update book": err,
+			"book":              book,
+		}).Info("UPDATE BOOK request")
+		return echo.NewHTTPError(http.StatusBadRequest, "book updating failed")
 	}
-	return c.String(http.StatusOK, "user updated")
+	return c.String(http.StatusOK, "book updated")
 }
 
-func (h *Handler) deleteUser(c echo.Context) error {
-	userId := c.QueryParam("id")
-	var userIdNum int
-	userIdNum, _ = strconv.Atoi(userId)
-	err := h.services.UserAct.DeleteUser(c.Request().Context(), userIdNum)
+func (h *Handler) deleteBook(c echo.Context) error {
+	bookId := c.QueryParam("id")
+	var bookIdNum int
+	bookIdNum, _ = strconv.Atoi(bookId)
+	err := h.services.BookAct.DeleteBook(c.Request().Context(), bookIdNum)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Error get user": err,
-			"user ID":        userId,
-		}).Info("DELETE USER request")
-		return echo.NewHTTPError(http.StatusBadRequest, "user deleting failed")
+			"Error get book": err,
+			"book ID":        bookId,
+		}).Info("DELETE BOOK request")
+		return echo.NewHTTPError(http.StatusBadRequest, "book deleting failed")
 	}
-	return c.String(http.StatusOK, "user deleted")
+	return c.String(http.StatusOK, "bool deleted")
 }
 
-func (h *Handler) getAllUsers(c echo.Context) error {
-	users, err := h.services.UserAct.GetAllUsers(c.Request().Context())
+func (h *Handler) getAllBooks(c echo.Context) error {
+	books, err := h.services.BookAct.GetAllBooks(c.Request().Context())
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Error get all users": err,
-			"users":               users,
-		}).Info("GET ALL USER request")
+			"Error get all books": err,
+			"books":               books,
+		}).Info("GET ALL BOOK request")
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(http.StatusOK, books)
 }

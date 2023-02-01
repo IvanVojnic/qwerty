@@ -6,27 +6,27 @@ import (
 	"context"
 )
 
-type UserAct interface {
-	CreateUser(context.Context, models.User) error
-	UpdateUser(context.Context, models.User) error
-	GetUser(context.Context, int) (models.User, error)
-	DeleteUser(context.Context, int) error
-	GetAllUsers(context.Context) ([]models.User, error)
+type BookAct interface {
+	CreateBook(context.Context, models.Book) error
+	UpdateBook(context.Context, models.Book) error
+	GetBook(context.Context, int) (models.Book, error)
+	DeleteBook(context.Context, int) error
+	GetAllBooks(context.Context) ([]models.Book, error)
 }
 
 type Authorization interface {
-	CreateUserVerified(context.Context, models.UserAuth) (string, string, error)
-	GetUserVerified(context.Context, int /*string, string*/) (models.UserAuth, error)
+	CreateUserVerified(context.Context, models.UserAuth, string) error
+	GetUserVerified(context.Context, interface{}) (models.UserAuth, error)
 }
 
 type Service struct {
-	UserAct
+	BookAct
 	Authorization
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		UserAct:       NewUserActSrv(repos.UserAct),
+		BookAct:       NewBookActSrv(repos.BookAct),
 		Authorization: NewAuthService(repos.Authorization),
 	}
 }

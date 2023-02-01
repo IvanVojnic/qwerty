@@ -6,30 +6,29 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type UserAct interface {
-	CreateUser(context.Context, models.User) error
-	UpdateUser(context.Context, models.User) error
-	GetUser(context.Context, int) (models.User, error)
-	DeleteUser(context.Context, int) error
-	GetAllUsers(context.Context) ([]models.User, error)
+type BookAct interface {
+	CreateBook(context.Context, models.Book) error
+	UpdateBook(context.Context, models.Book) error
+	GetBook(context.Context, int) (models.Book, error)
+	DeleteBook(context.Context, int) error
+	GetAllBooks(context.Context) ([]models.Book, error)
 }
 
 type Authorization interface {
-	CreateAuthUser(context.Context, *models.UserAuth) (int, error)
-	GetAuthUser(context.Context, int) (models.UserAuth, error)
-	GetUserById(ctx context.Context, userId int) (models.UserAuth, error)
-	GetUserWithRefreshToken(ctx context.Context, rt string) (models.UserAuth, error)
-	UpdateRefreshToken(ctx context.Context, rt string, id int) error
+	CreateAuthUser(context.Context, *models.UserAuth) error
+	GetUserById(context.Context, interface{}) (models.UserAuth, error)
+	GetUserWithRefreshToken(context.Context, string) (models.UserAuth, error)
+	UpdateRefreshToken(context.Context, string, interface{}) error
 }
 
 type Repository struct {
-	UserAct
+	BookAct
 	Authorization
 }
 
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
-		UserAct:       NewUserActPostgres(db),
+		BookAct:       NewBookActPostgres(db),
 		Authorization: NewUserAuthPostgres(db),
 	}
 }

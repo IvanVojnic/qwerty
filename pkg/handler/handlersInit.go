@@ -1,8 +1,12 @@
 package handler
 
 import (
+	"EFpractic2/pkg/ErrorWrapper"
 	"EFpractic2/pkg/service"
+	"EFpractic2/pkg/utils"
+	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 )
 
@@ -12,6 +16,11 @@ type Handler struct {
 
 func NewHandler(services *service.Service) *Handler {
 	return &Handler{services: services}
+}
+
+type Tokens struct {
+	AccessToken  string `json:"access"`
+	RefreshToken string `json:"refresh"`
 }
 
 /*func CORSMiddleware() gin.HandlerFunc {
@@ -38,19 +47,45 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	})
 
 	rAct := router.Group("/act")
-	/*rAct.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `[${time_rfc3339} ${host} ${method}]`,
-	}))*/
 
-	rAct.POST("/create", h.createUser)
-	rAct.GET("/get", h.getUser)
-	rAct.POST("/update", h.updateUser)
-	rAct.GET("/delete", h.deleteUser)
-	rAct.GET("/getAllUsers", h.getAllUsers)
+	router.POST("/refreshToken", h.RefreshToken)
+
+	rAct.Use(middleware.Logger())
+	rAct.POST("/create", h.createBook)
+	rAct.GET("/get", h.getBook)
+	rAct.POST("/update", h.updateBook)
+	rAct.GET("/delete", h.deleteBook)
+	rAct.GET("/getAllBooks", h.getAllBooks)
 
 	rVerified := router.Group("/verified")
+
+	rVerified.Use(jwtAuthMiddleware())
+
 	rVerified.POST("/createUser", h.SignUp)
 	rVerified.POST("/getUserAuth", h.GetUserAuth)
 	router.Logger.Fatal(router.Start(":40000"))
 	return router
+}
+
+func jwtAuthMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) (err error) {
+			var tokens Tokens
+			err = c.Bind(&tokens)
+			if err != nil {
+				fmt.Errorf("error after binding tokens %w", err)
+				return echo.NewHTTPError(http.StatusUnauthorized, "login please")
+			}
+			authorized, errIsAuth := utils.IsAuthorized(tokens.AccessToken)
+			if authorized {
+				userID, errGetID := utils.ExtractIDFromToken(tokens.AccessToken)
+				if errGetID != nil {
+					return echo.NewHTTPError(http.StatusUnauthorized, ErrorWrapper.ErrorResponse{Message: errGetID.Error()})
+				}
+				c.Set("user_id", userID)
+				return nil
+			}
+			return echo.NewHTTPError(http.StatusUnauthorized, ErrorWrapper.ErrorResponse{Message: errIsAuth.Error()})
+		}
+	}
 }

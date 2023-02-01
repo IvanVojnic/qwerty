@@ -1,0 +1,96 @@
+linters-settings:
+  dupl:
+    threshold: 100
+  funlen:
+    lines: 100
+    statements: 50
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  gocritic:
+    enabled-tags:
+      - style
+      - diagnostic
+      - performance
+      - experimental
+      - opinionated
+    disabled-checks:
+      - captLocal
+  gocyclo:
+    min-complexity: 15
+  goimports:
+    local-prefixes: gitlab.effective-soft.com/yfc/shopservice
+  revive:
+    min-confidence: 0.8
+  govet:
+    check-shadowing: true
+    fieldalignment:
+      suggest-new: true
+  lll:
+    line-length: 180
+  misspell:
+    locale: US
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godox
+    - gofmt
+    - goimports
+    - revive
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - prealloc
+    - rowserrcheck
+    - exportloopref
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+
+run:
+  skip-dirs:
+    - vendor
+    - e2e
+    - test
+
+issues:
+  max-same-issues: 0
+  exclude-use-default: false
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: (.*?)_test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - gochecknoglobals
+        - funlen
+        - goconst
+        - lll
