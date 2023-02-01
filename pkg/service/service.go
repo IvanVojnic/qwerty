@@ -16,19 +16,20 @@ type BookAct interface {
 }
 
 type Authorization interface {
-	CreateUserVerified(context.Context, models.UserAuth, string) error
-	GetUserVerified(context.Context, uuid.UUID) (models.UserAuth, error)
-	SignInUser(context.Context, *models.UserAuth) (bool, error)
+	CreateAuthUser(context.Context, *models.UserAuth) error
+	GetUserById(context.Context, uuid.UUID) (models.UserAuth, error)
+	UpdateRefreshToken(context.Context, string, uuid.UUID) error
+	SignInUser(context.Context, *models.UserAuth) error
 }
 
 type Service struct {
-	BookAct
-	Authorization
+	BookAct       *BookActSrv
+	Authorization *AuthService
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		BookAct:       NewBookActSrv(repos.BookAct),
-		Authorization: NewAuthService(repos.Authorization),
+		BookAct:       NewBookActSrv(*repos.BookAct),
+		Authorization: NewAuthService(*repos.Authorization),
 	}
 }

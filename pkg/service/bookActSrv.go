@@ -7,10 +7,10 @@ import (
 )
 
 type BookActSrv struct {
-	repo repository.BookAct
+	repo repository.BookActPostgres
 }
 
-func NewBookActSrv(repo repository.BookAct) *BookActSrv {
+func NewBookActSrv(repo repository.BookActPostgres) *BookActSrv {
 	return &BookActSrv{repo: repo}
 }
 

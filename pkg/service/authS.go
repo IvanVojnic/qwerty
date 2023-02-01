@@ -12,10 +12,10 @@ import (
 const salt = "s53d42fg98gh7j6kkbver"
 
 type AuthService struct {
-	repo repository.Authorization
+	repo repository.UserAuthPostgres
 }
 
-func NewAuthService(repo repository.Authorization) *AuthService {
+func NewAuthService(repo repository.UserAuthPostgres) *AuthService {
 	return &AuthService{repo: repo}
 }
 

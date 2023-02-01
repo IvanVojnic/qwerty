@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"EFpractic2/models"
 	"EFpractic2/pkg/ErrorWrapper"
 	"EFpractic2/pkg/service"
 	"EFpractic2/pkg/utils"
+	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"net/http"
@@ -21,6 +24,25 @@ func NewHandler(services *service.Service) *Handler {
 type Tokens struct {
 	AccessToken  string `json:"access"`
 	RefreshToken string `json:"refresh"`
+}
+
+type BookAct interface {
+	CreateBook(context.Context, models.Book) error
+	UpdateBook(context.Context, models.Book) error
+	GetBook(context.Context, int) (models.Book, error)
+	DeleteBook(context.Context, int) error
+	GetAllBooks(context.Context) ([]models.Book, error)
+}
+
+type Authorization interface {
+	CreateUserVerified(context.Context, models.UserAuth, string) error
+	GetUserVerified(context.Context, uuid.UUID) (models.UserAuth, error)
+	SignInUser(context.Context, *models.UserAuth) (bool, error)
+}
+
+type Service struct {
+	BookAct
+	Authorization
 }
 
 /*func CORSMiddleware() gin.HandlerFunc {
