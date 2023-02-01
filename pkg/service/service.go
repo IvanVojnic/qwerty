@@ -4,6 +4,7 @@ import (
 	"EFpractic2/models"
 	"EFpractic2/pkg/repository"
 	"context"
+	"github.com/google/uuid"
 )
 
 type BookAct interface {
@@ -16,7 +17,7 @@ type BookAct interface {
 
 type Authorization interface {
 	CreateUserVerified(context.Context, models.UserAuth, string) error
-	GetUserVerified(context.Context, interface{}) (models.UserAuth, error)
+	GetUserVerified(context.Context, uuid.UUID) (models.UserAuth, error)
 	SignInUser(context.Context, *models.UserAuth) (bool, error)
 }
 

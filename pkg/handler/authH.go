@@ -83,7 +83,8 @@ func (h *Handler) signIn(c echo.Context) error {
 }
 
 func (h *Handler) getUserAuth(c echo.Context) error {
-	userID := c.Get("user_id")
+	var userID uuid.UUID
+	userID = c.Get("user_id").(uuid.UUID)
 	user, err := h.services.Authorization.GetUserVerified(c.Request().Context(), userID)
 	if err != nil {
 		log.WithFields(log.Fields{

@@ -11,7 +11,7 @@ import (
 const SigningKey = "barband"
 
 const TokenRTDuration = 1 * time.Hour
-const TokenATDuretion = 1 * time.Minute
+const TokenATDuretion = 100 * time.Minute
 
 type tokenClaims struct {
 	jwt.StandardClaims
@@ -55,7 +55,7 @@ func IsAuthorized(requestToken string) (bool, error) {
 }
 
 func ExtractIDFromToken(requestToken string) (uuid.UUID, error) {
-	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(requestToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
@@ -66,13 +66,12 @@ func ExtractIDFromToken(requestToken string) (uuid.UUID, error) {
 		return uuid.UUID{}, err
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-
-	if !ok && !token.Valid {
+	claims, ok := token.Claims.(*tokenClaims)
+	if ok && !token.Valid {
 		return uuid.UUID{}, fmt.Errorf("Invalid Token")
 	}
 
-	return claims["user_id"].(uuid.UUID), nil
+	return claims.UserId, nil
 }
 
 func IsTokenExpired(requestToken string) bool {

@@ -33,7 +33,7 @@ func (r *UserAuthPostgres) UpdateRefreshToken(ctx context.Context, rt string, id
 	return nil
 }
 
-func (r *UserAuthPostgres) GetUserById(ctx context.Context, userId interface{}) (models.UserAuth, error) {
+func (r *UserAuthPostgres) GetUserById(ctx context.Context, userId uuid.UUID) (models.UserAuth, error) {
 	user := models.UserAuth{}
 	err := r.db.QueryRow(ctx, "select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where id=$1", userId).Scan(
 		&user.UserId, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password, &user.RefreshToken)

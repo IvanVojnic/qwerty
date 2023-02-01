@@ -83,7 +83,7 @@ func jwtAuthMiddleware() echo.MiddlewareFunc {
 					return echo.NewHTTPError(http.StatusUnauthorized, ErrorWrapper.ErrorResponse{Message: errGetID.Error()})
 				}
 				c.Set("user_id", userID)
-				return nil
+				return next(c)
 			}
 			return echo.NewHTTPError(http.StatusUnauthorized, ErrorWrapper.ErrorResponse{Message: errIsAuth.Error()})
 		}

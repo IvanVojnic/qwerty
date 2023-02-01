@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/sha1"
 	"fmt"
+	"github.com/google/uuid"
 )
 
 const salt = "s53d42fg98gh7j6kkbver"
@@ -31,7 +32,7 @@ func (s *AuthService) CreateUserVerified(ctx context.Context, user models.UserAu
 	return err
 }
 
-func (s *AuthService) GetUserVerified(ctx context.Context, id interface{}) (models.UserAuth, error) {
+func (s *AuthService) GetUserVerified(ctx context.Context, id uuid.UUID) (models.UserAuth, error) {
 	user, err := s.repo.GetUserById(ctx, id)
 	return user, err
 }

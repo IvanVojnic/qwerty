@@ -17,7 +17,7 @@ type BookAct interface {
 
 type Authorization interface {
 	CreateAuthUser(context.Context, *models.UserAuth) error
-	GetUserById(context.Context, interface{}) (models.UserAuth, error)
+	GetUserById(context.Context, uuid.UUID) (models.UserAuth, error)
 	UpdateRefreshToken(context.Context, string, uuid.UUID) error
 	SignInUser(context.Context, *models.UserAuth) error
 }
