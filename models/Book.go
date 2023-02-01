@@ -1,7 +1,9 @@
+// Package models model Book
 package models
 
 import "github.com/google/uuid"
 
+// Book is a book
 type Book struct {
 	BookID   uuid.UUID `json:"id" db:"id"`
 	BookName string    `json:"name" db:"name"`

@@ -1,13 +1,16 @@
+// Package main file to run app
 package main
 
 import (
+	"os"
+
 	"EFpractic2/pkg/handler"
 	"EFpractic2/pkg/repository"
-	"EFpractic2/pkg/service" //nolint:goimports
+	"EFpractic2/pkg/service"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 func main() {

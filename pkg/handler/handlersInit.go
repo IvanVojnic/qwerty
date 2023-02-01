@@ -1,31 +1,38 @@
+// Package handler init all handlers and middleware
 package handler
 
 import (
-	"EFpractic2/models"
-	"EFpractic2/pkg/ErrorWrapper"
-	"EFpractic2/pkg/service"
-	"EFpractic2/pkg/utils"
 	"context"
 	"fmt"
+	"net/http"
+
+	"EFpractic2/models"
+	"EFpractic2/pkg/errorwrapper"
+	"EFpractic2/pkg/service"
+	"EFpractic2/pkg/utils"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
 )
 
+// Handler is wrapper for service
 type Handler struct {
 	services *service.Service
 }
 
+// NewHandler used to init Handler
 func NewHandler(services *service.Service) *Handler {
 	return &Handler{services: services}
 }
 
+// Tokens used to define at and rt
 type Tokens struct {
 	AccessToken  string `json:"access"`
 	RefreshToken string `json:"refresh"`
 }
 
+// BookAct service consists of methods fo book
 type BookAct interface {
 	CreateBook(context.Context, models.Book) error
 	UpdateBook(context.Context, models.Book) error
@@ -34,12 +41,14 @@ type BookAct interface {
 	GetAllBooks(context.Context) ([]models.Book, error)
 }
 
+// Authorization service consists of methods fo user
 type Authorization interface {
-	CreateUserVerified(context.Context, models.UserAuth, string) error
+	CreateUserVerified(context.Context, *models.UserAuth, string) error
 	GetUserVerified(context.Context, uuid.UUID) (models.UserAuth, error)
 	SignInUser(context.Context, *models.UserAuth) (bool, error)
 }
 
+// Service wrapper for service interfaces
 type Service struct {
 	BookAct
 	Authorization
@@ -62,27 +71,22 @@ type Service struct {
 	}
 }*/
 
+// InitRoutes used to init routes
 func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
-
 	router.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "hello world")
 	})
-
 	rAct := router.Group("/book")
-
 	router.POST("/refreshToken", h.refreshToken)
 	router.POST("/createUser", h.signUp)
 	router.POST("/signIn", h.signIn)
-
 	rAct.Use(middleware.Logger())
 	rAct.POST("/create", h.createBook)
 	rAct.GET("/get", h.getBook)
 	rAct.POST("/update", h.updateBook)
 	rAct.GET("/delete", h.deleteBook)
 	rAct.GET("/getAllBooks", h.getAllBooks)
-
 	rVerified := router.Group("/verified")
-
 	rVerified.Use(jwtAuthMiddleware())
 	rVerified.POST("/getUserAuth", h.getUserAuth)
 	router.Logger.Fatal(router.Start(":40000"))
@@ -102,12 +106,12 @@ func jwtAuthMiddleware() echo.MiddlewareFunc {
 			if authorized {
 				userID, errGetID := utils.ExtractIDFromToken(tokens.AccessToken)
 				if errGetID != nil {
-					return echo.NewHTTPError(http.StatusUnauthorized, ErrorWrapper.ErrorResponse{Message: errGetID.Error()})
+					return echo.NewHTTPError(http.StatusUnauthorized, errorwrapper.ErrorResponse{Message: errGetID.Error()})
 				}
 				c.Set("user_id", userID)
 				return next(c)
 			}
-			return echo.NewHTTPError(http.StatusUnauthorized, ErrorWrapper.ErrorResponse{Message: errIsAuth.Error()})
+			return echo.NewHTTPError(http.StatusUnauthorized, errorwrapper.ErrorResponse{Message: errIsAuth.Error()})
 		}
 	}
 }

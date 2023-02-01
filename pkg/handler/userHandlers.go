@@ -1,15 +1,17 @@
+// Package handler declare handlers for book
 package handler
 
 import (
-	"EFpractic2/models"
-	"fmt"
-	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+
+	"EFpractic2/models"
+
+	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 )
 
-func (h *Handler) createBook(c echo.Context) error {
+func (h *Handler) createBook(c echo.Context) error { // nolint:dupl
 	book := models.Book{}
 	err := c.Bind(&book)
 	if err != nil {
@@ -31,10 +33,10 @@ func (h *Handler) createBook(c echo.Context) error {
 }
 
 func (h *Handler) getBook(c echo.Context) error {
-	bookId := c.QueryParam("id")
-	var bookIdNum int
-	bookIdNum, _ = strconv.Atoi(bookId)
-	book, err := h.services.BookAct.GetBook(c.Request().Context(), bookIdNum)
+	bookID := c.QueryParam("id")
+	var bookIDNum int
+	bookIDNum, _ = strconv.Atoi(bookID)
+	book, err := h.services.BookAct.GetBook(c.Request().Context(), bookIDNum)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get book": err,
@@ -42,11 +44,10 @@ func (h *Handler) getBook(c echo.Context) error {
 		}).Info("GET BOOK request")
 		return echo.NewHTTPError(http.StatusBadRequest, "book getting failed")
 	}
-	fmt.Sprintf("book: %s", book)
 	return c.JSON(http.StatusOK, book)
 }
 
-func (h *Handler) updateBook(c echo.Context) error {
+func (h *Handler) updateBook(c echo.Context) error { // nolint:dupl
 	book := models.Book{}
 	err := c.Bind(&book)
 	if err != nil {
@@ -68,14 +69,14 @@ func (h *Handler) updateBook(c echo.Context) error {
 }
 
 func (h *Handler) deleteBook(c echo.Context) error {
-	bookId := c.QueryParam("id")
-	var bookIdNum int
-	bookIdNum, _ = strconv.Atoi(bookId)
-	err := h.services.BookAct.DeleteBook(c.Request().Context(), bookIdNum)
+	bookID := c.QueryParam("id")
+	var bookIDNum int
+	bookIDNum, _ = strconv.Atoi(bookID)
+	err := h.services.BookAct.DeleteBook(c.Request().Context(), bookIDNum)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get book": err,
-			"book ID":        bookId,
+			"book ID":        bookID,
 		}).Info("DELETE BOOK request")
 		return echo.NewHTTPError(http.StatusBadRequest, "book deleting failed")
 	}

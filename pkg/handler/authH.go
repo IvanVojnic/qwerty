@@ -1,13 +1,15 @@
-// Handlers
+// Package handler declare handlers fo user
 package handler
 
 import (
+	"net/http"
+
 	"EFpractic2/models"
-	"EFpractic2/pkg/utils" //nolint:goimports
+	"EFpractic2/pkg/utils"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 type response struct {
@@ -24,16 +26,16 @@ func (h *Handler) signUp(c echo.Context) error {
 		}).Info("Bind json")
 		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
 	}
-	user.UserId = uuid.New()
-	rt, errRT := utils.GenerateToken(user.UserId, utils.TokenRTDuration)
+	user.UserID = uuid.New()
+	rt, errRT := utils.GenerateToken(user.UserID, utils.TokenRTDuration)
 	if errRT != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
 	}
-	at, errAT := utils.GenerateToken(user.UserId, utils.TokenATDuretion)
+	at, errAT := utils.GenerateToken(user.UserID, utils.TokenATDuretion)
 	if errAT != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
 	}
-	err := h.services.Authorization.CreateUserVerified(c.Request().Context(), user, rt)
+	err := h.services.Authorization.CreateUserVerified(c.Request().Context(), &user, rt)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error create user": err,
@@ -66,11 +68,11 @@ func (h *Handler) signIn(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "user sign in failed")
 	}
 	if isVerified {
-		rt, errRT := utils.GenerateToken(user.UserId, utils.TokenRTDuration)
+		rt, errRT := utils.GenerateToken(user.UserID, utils.TokenRTDuration)
 		if errRT != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
 		}
-		at, errAT := utils.GenerateToken(user.UserId, utils.TokenATDuretion)
+		at, errAT := utils.GenerateToken(user.UserID, utils.TokenATDuretion)
 		if errAT != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
 		}
@@ -83,8 +85,7 @@ func (h *Handler) signIn(c echo.Context) error {
 }
 
 func (h *Handler) getUserAuth(c echo.Context) error {
-	var userID uuid.UUID
-	userID = c.Get("user_id").(uuid.UUID)
+	userID := c.Get("user_id").(uuid.UUID)
 	user, err := h.services.Authorization.GetUserVerified(c.Request().Context(), userID)
 	if err != nil {
 		log.WithFields(log.Fields{

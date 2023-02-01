@@ -1,29 +1,37 @@
+// Package repository declare func for user
 package repository
 
 import (
-	"EFpractic2/models"
 	"context"
 	"fmt"
+
+	"EFpractic2/models"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// UserAuthPostgres has an internal db object
 type UserAuthPostgres struct {
 	db *pgxpool.Pool
 }
 
+// NewUserAuthPostgres used to init UsesAP
 func NewUserAuthPostgres(db *pgxpool.Pool) *UserAuthPostgres {
 	return &UserAuthPostgres{db: db}
 }
 
+// CreateAuthUser used to create user
 func (r *UserAuthPostgres) CreateAuthUser(ctx context.Context, user *models.UserAuth) error {
-	_, err := r.db.Exec(ctx, "insert into usersauth (id, name, age, regular, password) values($1, $2, $3, $4, $5)", user.UserId, user.UserName, user.UserAge, user.UserIsRegular, user.Password) //nolint:lll
+	_, err := r.db.Exec(ctx, "insert into usersauth (id, name, age, regular, password) values($1, $2, $3, $4, $5)",
+		user.UserID, user.UserName, user.UserAge, user.UserIsRegular, user.Password)
 	if err != nil {
 		return fmt.Errorf("error while user creating: %v", err)
 	}
 	return nil
 }
 
+// UpdateRefreshToken used to update rt
 func (r *UserAuthPostgres) UpdateRefreshToken(ctx context.Context, rt string, id uuid.UUID) error {
 	_, errInsert := r.db.Exec(ctx, "UPDATE usersauth SET refreshtoken = $1 WHERE id = $2", rt, id)
 	if errInsert != nil {
@@ -32,23 +40,17 @@ func (r *UserAuthPostgres) UpdateRefreshToken(ctx context.Context, rt string, id
 	return nil
 }
 
-func (r *UserAuthPostgres) GetUserById(ctx context.Context, userId uuid.UUID) (models.UserAuth, error) {
+// GetUserByID used to get user by ID
+func (r *UserAuthPostgres) GetUserByID(ctx context.Context, userID uuid.UUID) (models.UserAuth, error) {
 	user := models.UserAuth{}
-	err := r.db.QueryRow(ctx, "select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where id=$1", userId).Scan(
-		&user.UserId, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password, &user.RefreshToken)
+	err := r.db.QueryRow(ctx,
+		"select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where id=$1",
+		userID).Scan(&user.UserID, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password, &user.RefreshToken)
 	if err != nil {
 		return user, fmt.Errorf("get user error %w", err)
 	}
 
 	return user, nil
-}
-
-func (r *UserAuthPostgres) SignInUser(ctx context.Context, user *models.UserAuth) error {
-	err := r.db.QueryRow(ctx, "select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where name=$1", user.UserName).Scan(&user.UserId, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password, &user.RefreshToken)
-	if err != nil {
-		return fmt.Errorf("error while getting user %w", err)
-	}
-	return nil
 }
 
 /*
@@ -59,19 +61,15 @@ create table usersauth(
     regular bool not null,
     password varchar(255) not null,
     refreshtoken varchar(255)
-);
-*/
+);*/
 
-/*func (r *UserAuthPostgres) GetUserWithRefreshToken(ctx context.Context, rt string) (models.UserAuth, error) {
-	user := models.UserAuth{}
-	userId, errRT := utils.ParseToken(rt)
-	if errRT != nil {
-		return models.UserAuth{}, fmt.Errorf("parse rt error %w", errRT)
-	}
-	err := r.db.QueryRow(ctx, "select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where id=$1", userId).Scan(
-		&user.UserId, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password, &user.RefreshToken)
+// SignInUser used to sign in user
+func (r *UserAuthPostgres) SignInUser(ctx context.Context, user *models.UserAuth) error {
+	err := r.db.QueryRow(ctx,
+		"select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where name=$1",
+		user.UserName).Scan(&user.UserID, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password, &user.RefreshToken)
 	if err != nil {
-		return models.UserAuth{}, fmt.Errorf("get user error %w", err)
+		return fmt.Errorf("error while getting user %w", err)
 	}
-	return user, nil
-}*/
+	return nil
+}
