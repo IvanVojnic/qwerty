@@ -3,7 +3,7 @@ package main
 import (
 	"EFpractic2/pkg/handler"
 	"EFpractic2/pkg/repository"
-	"EFpractic2/pkg/service"
+	"EFpractic2/pkg/service" //nolint:goimports
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-
 	e := echo.New()
 	logger := log.New()
 	logger.Out = os.Stdout
@@ -27,8 +26,6 @@ func main() {
 		},
 	}))
 
-	/*cfg := config.GetConfig()
-	fmt.Sprintf("CFG IS - %s", cfg)*/
 	db, err := repository.NewPostgresDB()
 	if err != nil {
 		log.WithFields(log.Fields{

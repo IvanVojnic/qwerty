@@ -3,6 +3,7 @@ package repository
 import (
 	"EFpractic2/models"
 	"context"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -17,8 +18,8 @@ type BookAct interface {
 type Authorization interface {
 	CreateAuthUser(context.Context, *models.UserAuth) error
 	GetUserById(context.Context, interface{}) (models.UserAuth, error)
-	GetUserWithRefreshToken(context.Context, string) (models.UserAuth, error)
-	UpdateRefreshToken(context.Context, string, interface{}) error
+	UpdateRefreshToken(context.Context, string, uuid.UUID) error
+	SignInUser(context.Context, *models.UserAuth) error
 }
 
 type Repository struct {

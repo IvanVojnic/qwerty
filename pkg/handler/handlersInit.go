@@ -46,9 +46,11 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 		return c.String(http.StatusOK, "hello world")
 	})
 
-	rAct := router.Group("/act")
+	rAct := router.Group("/book")
 
-	router.POST("/refreshToken", h.RefreshToken)
+	router.POST("/refreshToken", h.refreshToken)
+	router.POST("/createUser", h.signUp)
+	router.POST("/signIn", h.signIn)
 
 	rAct.Use(middleware.Logger())
 	rAct.POST("/create", h.createBook)
@@ -60,9 +62,7 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	rVerified := router.Group("/verified")
 
 	rVerified.Use(jwtAuthMiddleware())
-
-	rVerified.POST("/createUser", h.SignUp)
-	rVerified.POST("/getUserAuth", h.GetUserAuth)
+	rVerified.POST("/getUserAuth", h.getUserAuth)
 	router.Logger.Fatal(router.Start(":40000"))
 	return router
 }
@@ -73,7 +73,7 @@ func jwtAuthMiddleware() echo.MiddlewareFunc {
 			var tokens Tokens
 			err = c.Bind(&tokens)
 			if err != nil {
-				fmt.Errorf("error after binding tokens %w", err)
+				_ = fmt.Errorf("error after binding tokens %w", err)
 				return echo.NewHTTPError(http.StatusUnauthorized, "login please")
 			}
 			authorized, errIsAuth := utils.IsAuthorized(tokens.AccessToken)

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -14,7 +15,7 @@ const TokenATDuretion = 1 * time.Minute
 
 type tokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"user_id"`
+	UserId uuid.UUID `json:"user_id"`
 }
 
 func ParseToken(tokenToParse string) (bool, error) {
@@ -34,13 +35,13 @@ func ParseToken(tokenToParse string) (bool, error) {
 	return false, nil
 }
 
-func GenerateToken(id interface{}, tokenDuration time.Duration) (string, error) {
+func GenerateToken(id uuid.UUID, tokenDuration time.Duration) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(tokenDuration).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		id.(int),
+		id,
 	})
 	return token.SignedString([]byte(SigningKey))
 }
@@ -53,7 +54,7 @@ func IsAuthorized(requestToken string) (bool, error) {
 	return true, nil
 }
 
-func ExtractIDFromToken(requestToken string) (int, error) {
+func ExtractIDFromToken(requestToken string) (uuid.UUID, error) {
 	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -62,16 +63,16 @@ func ExtractIDFromToken(requestToken string) (int, error) {
 	})
 
 	if err != nil {
-		return 0, err
+		return uuid.UUID{}, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
 	if !ok && !token.Valid {
-		return 0, fmt.Errorf("Invalid Token")
+		return uuid.UUID{}, fmt.Errorf("Invalid Token")
 	}
 
-	return claims["id"].(int), nil
+	return claims["user_id"].(uuid.UUID), nil
 }
 
 func IsTokenExpired(requestToken string) bool {

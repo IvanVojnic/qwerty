@@ -1,19 +1,20 @@
+// Handlers
 package handler
 
 import (
 	"EFpractic2/models"
-	"EFpractic2/pkg/utils"
+	"EFpractic2/pkg/utils" //nolint:goimports
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-type Response struct {
+type response struct {
 	User *models.UserAuth `json:"user"`
 }
 
-func (h *Handler) SignUp(c echo.Context) error {
+func (h *Handler) signUp(c echo.Context) error {
 	user := models.UserAuth{}
 	errBind := c.Bind(&user)
 	if errBind != nil {
@@ -47,9 +48,42 @@ func (h *Handler) SignUp(c echo.Context) error {
 	})
 }
 
-func (h *Handler) GetUserAuth(c echo.Context) error {
+func (h *Handler) signIn(c echo.Context) error {
+	user := models.UserAuth{}
+	errBind := c.Bind(&user)
+	if errBind != nil {
+		log.WithFields(log.Fields{
+			"Error Bind json while creating user": errBind,
+			"user":                                user,
+		}).Info("Bind json")
+		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
+	}
+	isVerified, err := h.services.Authorization.SignInUser(c.Request().Context(), &user)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error sign in user": err,
+		}).Info("SIGN IN USER request")
+		return echo.NewHTTPError(http.StatusBadRequest, "user sign in failed")
+	}
+	if isVerified {
+		rt, errRT := utils.GenerateToken(user.UserId, utils.TokenRTDuration)
+		if errRT != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
+		}
+		at, errAT := utils.GenerateToken(user.UserId, utils.TokenATDuretion)
+		if errAT != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
+		}
+		return c.JSON(http.StatusOK, &Tokens{
+			AccessToken:  at,
+			RefreshToken: rt,
+		})
+	}
+	return echo.NewHTTPError(http.StatusUnauthorized, "wrong data")
+}
+
+func (h *Handler) getUserAuth(c echo.Context) error {
 	userID := c.Get("user_id")
-	//jk
 	user, err := h.services.Authorization.GetUserVerified(c.Request().Context(), userID)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -58,10 +92,10 @@ func (h *Handler) GetUserAuth(c echo.Context) error {
 		}).Info("GET USER request")
 		return echo.NewHTTPError(http.StatusBadRequest, "sign up please")
 	}
-	return c.JSON(http.StatusOK, Response{&user})
+	return c.JSON(http.StatusOK, response{&user})
 }
 
-func (h *Handler) RefreshToken(c echo.Context) error {
+func (h *Handler) refreshToken(c echo.Context) error {
 	var tokens Tokens
 	errBind := c.Bind(&tokens)
 	if errBind != nil {
@@ -74,8 +108,8 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 			if errRT != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, "bad refresh token")
 			}
-			id, errGetId := utils.ExtractIDFromToken(tokens.RefreshToken)
-			if errGetId != nil {
+			id, errGetID := utils.ExtractIDFromToken(tokens.RefreshToken)
+			if errGetID != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
 			}
 			newAt, errAT := utils.GenerateToken(id, utils.TokenATDuretion)

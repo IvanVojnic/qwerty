@@ -36,6 +36,18 @@ func (s *AuthService) GetUserVerified(ctx context.Context, id interface{}) (mode
 	return user, err
 }
 
+func (s *AuthService) SignInUser(ctx context.Context, user *models.UserAuth) (bool, error) {
+	hashedPass := generatePasswordHash(user.Password)
+	err := s.repo.SignInUser(ctx, user)
+	if err != nil {
+		return false, fmt.Errorf("error while sign in query %w", err)
+	}
+	if user.Password == hashedPass {
+		return true, nil
+	}
+	return false, nil
+}
+
 func generatePasswordHash(password string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))

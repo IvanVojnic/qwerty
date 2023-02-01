@@ -17,6 +17,7 @@ type BookAct interface {
 type Authorization interface {
 	CreateUserVerified(context.Context, models.UserAuth, string) error
 	GetUserVerified(context.Context, interface{}) (models.UserAuth, error)
+	SignInUser(context.Context, *models.UserAuth) (bool, error)
 }
 
 type Service struct {
