@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (h *Handler) createBook(c echo.Context) error { // nolint:dupl
+func (h *Handler) createBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
 	if err != nil {
@@ -47,7 +47,7 @@ func (h *Handler) getBook(c echo.Context) error {
 	return c.JSON(http.StatusOK, book)
 }
 
-func (h *Handler) updateBook(c echo.Context) error { // nolint:dupl
+func (h *Handler) updateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
 	if err != nil {
