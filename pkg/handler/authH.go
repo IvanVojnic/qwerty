@@ -35,7 +35,7 @@ func (h *Handler) signUp(c echo.Context) error {
 	if errAT != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "smth went wrong")
 	}
-	err := h.services.Authorization.CreateUserVerified(c.Request().Context(), &user, rt)
+	err := h.serviceProfile.CreateUserVerified(c.Request().Context(), &user, rt)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error create user": err,
@@ -60,7 +60,7 @@ func (h *Handler) signIn(c echo.Context) error {
 		}).Info("Bind json")
 		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
 	}
-	isVerified, err := h.services.Authorization.SignInUser(c.Request().Context(), &user)
+	isVerified, err := h.serviceProfile.SignInUser(c.Request().Context(), &user)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error sign in user": err,
@@ -86,7 +86,7 @@ func (h *Handler) signIn(c echo.Context) error {
 
 func (h *Handler) getUserAuth(c echo.Context) error {
 	userID := c.Get("user_id").(uuid.UUID)
-	user, err := h.services.Authorization.GetUserVerified(c.Request().Context(), userID)
+	user, err := h.serviceProfile.GetUserVerified(c.Request().Context(), userID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get user": err,

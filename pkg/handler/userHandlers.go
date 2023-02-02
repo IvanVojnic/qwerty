@@ -21,7 +21,7 @@ func (h *Handler) createBook(c echo.Context) error { // nolint:dupl, gocritic
 		}).Info("Bind json")
 		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
 	}
-	err = h.services.BookAct.CreateBook(c.Request().Context(), book)
+	err = h.serviceBook.CreateBook(c.Request().Context(), book)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error create book": err,
@@ -36,7 +36,7 @@ func (h *Handler) getBook(c echo.Context) error {
 	bookID := c.QueryParam("id")
 	var bookIDNum int
 	bookIDNum, _ = strconv.Atoi(bookID)
-	book, err := h.services.BookAct.GetBook(c.Request().Context(), bookIDNum)
+	book, err := h.serviceBook.GetBook(c.Request().Context(), bookIDNum)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get book": err,
@@ -57,7 +57,7 @@ func (h *Handler) updateBook(c echo.Context) error { // nolint:dupl, gocritic
 		}).Info("Bind json")
 		return echo.NewHTTPError(http.StatusInternalServerError, "data not correct")
 	}
-	err = h.services.BookAct.UpdateBook(c.Request().Context(), book)
+	err = h.serviceBook.UpdateBook(c.Request().Context(), book)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error update book": err,
@@ -72,7 +72,7 @@ func (h *Handler) deleteBook(c echo.Context) error {
 	bookID := c.QueryParam("id")
 	var bookIDNum int
 	bookIDNum, _ = strconv.Atoi(bookID)
-	err := h.services.BookAct.DeleteBook(c.Request().Context(), bookIDNum)
+	err := h.serviceBook.DeleteBook(c.Request().Context(), bookIDNum)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get book": err,
@@ -84,7 +84,7 @@ func (h *Handler) deleteBook(c echo.Context) error {
 }
 
 func (h *Handler) getAllBooks(c echo.Context) error {
-	books, err := h.services.BookAct.GetAllBooks(c.Request().Context())
+	books, err := h.serviceBook.GetAllBooks(c.Request().Context())
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get all books": err,

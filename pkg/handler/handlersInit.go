@@ -8,29 +8,12 @@ import (
 
 	"EFpractic2/models"
 	"EFpractic2/pkg/errorwrapper"
-	"EFpractic2/pkg/service"
 	"EFpractic2/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
-
-// Handler is wrapper for service
-type Handler struct {
-	services *service.Service
-}
-
-// NewHandler used to init Handler
-func NewHandler(services *service.Service) *Handler {
-	return &Handler{services: services}
-}
-
-// Tokens used to define at and rt
-type Tokens struct {
-	AccessToken  string `json:"access"`
-	RefreshToken string `json:"refresh"`
-}
 
 // BookAct service consists of methods fo book
 type BookAct interface {
@@ -48,28 +31,25 @@ type Authorization interface {
 	SignInUser(context.Context, *models.UserAuth) (bool, error)
 }
 
-// Service wrapper for service interfaces
-type Service struct {
-	BookAct
-	Authorization
+// Handler is wrapper for service
+type Handler struct {
+	serviceProfile Authorization
+	serviceBook    BookAct
 }
 
-/*func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Credentials", "true")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Header("Access-Control-Allow-Methods", "POST,HEAD,PATCH, OPTIONS, GET, PUT")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
+// NewHandler used to init Handler
+func NewHandler(serviceAuth Authorization, serviceBook BookAct) *Handler {
+	return &Handler{
+		serviceProfile: serviceAuth,
+		serviceBook:    serviceBook,
 	}
-}*/
+}
+
+// Tokens used to define at and rt
+type Tokens struct {
+	AccessToken  string `json:"access"`
+	RefreshToken string `json:"refresh"`
+}
 
 // InitRoutes used to init routes
 func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
@@ -115,3 +95,20 @@ func jwtAuthMiddleware() echo.MiddlewareFunc {
 		}
 	}
 }
+
+/*func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Methods", "POST,HEAD,PATCH, OPTIONS, GET, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}*/

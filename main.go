@@ -45,16 +45,13 @@ func main() {
 		}).Fatal("DB ERROR CONNECTION")
 	}
 	defer repository.ClosePool(db)
-
+	// rep init
 	profileRepo := repository.NewUserAuthPostgres(db)
 	bookRepo := repository.NewBookActPostgres(db)
-
+	// serv init
 	profileServ := service.NewAuthService(profileRepo)
 	bookServ := service.NewBookActSrv(bookRepo)
-
-	profileHandlers := handler.NewHandler(profileServ)
-	bookHandlers := handler.NewHandler(bookServ)
-
+	// hand init
+	profileHandlers := handler.NewHandler(profileServ, bookServ)
 	profileHandlers.InitRoutes(e)
-	bookHandlers.InitRoutes(e)
 }
