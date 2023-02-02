@@ -8,6 +8,8 @@ require (
 	github.com/labstack/echo/v4 v4.10.0
 )
 
+require github.com/caarlos0/env/v7 v7.0.0 // indirect
+
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect

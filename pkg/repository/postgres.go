@@ -2,20 +2,16 @@
 package repository
 
 import (
+	"EFpractic2/pkg/config"
 	"context"
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// StorageConfig is struct with postgres url
-type StorageConfig struct {
-	PostgresURL string `json:"pUrl"`
-}
-
 // NewPostgresDB func to init and connect to db
-func NewPostgresDB() (pool *pgxpool.Pool, err error) {
-	pool, err = pgxpool.New(context.Background(), "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
+func NewPostgresDB(cfg *config.Config) (pool *pgxpool.Pool, err error) {
+	pool, err = pgxpool.New(context.Background(), cfg.PostgresURL)
 	if err != nil {
 		return nil, fmt.Errorf("invalid configuration data: %v", err)
 	}

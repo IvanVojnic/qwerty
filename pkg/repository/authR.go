@@ -53,16 +53,6 @@ func (r *UserAuthPostgres) GetUserByID(ctx context.Context, userID uuid.UUID) (m
 	return user, nil
 }
 
-/*
-create table usersauth(
-    id uuid primary key not null,
-    name varchar(255) not null,
-    age int not null,
-    regular bool not null,
-    password varchar(255) not null,
-    refreshtoken varchar(255)
-);*/
-
 // SignInUser used to sign in user
 func (r *UserAuthPostgres) SignInUser(ctx context.Context, user *models.UserAuth) error {
 	err := r.db.QueryRow(ctx,

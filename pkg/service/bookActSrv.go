@@ -5,16 +5,24 @@ import (
 	"context"
 
 	"EFpractic2/models"
-	"EFpractic2/pkg/repository"
 )
+
+// BookAct interface consists of methos to communicate with boockAct repo
+type BookAct interface {
+	CreateBook(context.Context, models.Book) error
+	UpdateBook(context.Context, models.Book) error
+	GetBook(context.Context, int) (models.Book, error)
+	DeleteBook(context.Context, int) error
+	GetAllBooks(context.Context) ([]models.Book, error)
+}
 
 // BookActSrv wrapper for bookAP repo
 type BookActSrv struct {
-	repo repository.BookActPostgres
+	repo BookAct
 }
 
 // NewBookActSrv used to init BookAP
-func NewBookActSrv(repo repository.BookActPostgres) *BookActSrv {
+func NewBookActSrv(repo BookAct) *BookActSrv {
 	return &BookActSrv{repo: repo}
 }
 

@@ -8,7 +8,6 @@ import (
 	"EFpractic2/models"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	log "github.com/sirupsen/logrus"
 )
 
 // BookActPostgres is a wrapper to db object
@@ -65,20 +64,14 @@ func (r *BookActPostgres) GetAllBooks(ctx context.Context) ([]models.Book, error
 	books := make([]models.Book, 0)
 	rows, err := r.db.Query(ctx, "select books.id, books.name, books.age, books.regular, from books")
 	if err != nil {
-		log.WithFields(log.Fields{
-			"Error get all book": err,
-			"rows":               rows,
-		}).Info("SQL QUERY")
+		return books, fmt.Errorf("get all books sql script error %w", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var book models.Book
 		errScan := rows.Scan(&book.BookID, &book.BookName, &book.BookYear, &book.BookNew)
 		if errScan != nil {
-			log.WithFields(log.Fields{
-				"Error while scan current row to get book model": err,
-				"book": book,
-			}).Info("SCAN ERROR. GET ALL BOOKS")
+			return books, fmt.Errorf("get all books scan rows error %w", errScan)
 		}
 		books = append(books, book)
 	}

@@ -1,17 +1,8 @@
 version: "3.9"
 services:
-  app:
-    build: .
-    image: vojnic/efpractice2:psql2
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - "3000:40000"
-    environment:
-      - pUrl=postgres://postgres:postgres@host.docker.internal:5432/postgres?sslmode=disable
   postgres:
-    image: postgres
+    image: postgres:latest
+    user: postgres
     environment:
       POSTGRES_DB: "postgres"
       POSTGRES_USER: "postgres"
@@ -21,8 +12,39 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - .:/docker-entrypoint-initdb.d
+    #volumes:
+      #- db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
+    networks:
+      - default
+  flyway:
+    image: flyway/flyway
+    # postgres url schema: jdbc:postgresql://host:port/database
+    command: -url=jdbc:postgresql://postgres:5432/postgres -user=postgres -password=postgres -locations=filesystem:/flyway/sql -connectRetries=10  migrate
+    volumes:
+      - ${PWD}/migrations/sql:/flyway/sql
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    networks:
+      - default
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vojnic/efpractice2:psql2
+    depends_on:
+      - postgres
+      - flyway
+    ports:
+      - "3000:40000"
+    environment:
+      - pUrl=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+      - DB=postgres
+      - PASSWORD=postgres
+      - USER=postgres
+      - PORT=5432
+    networks:
+      - default

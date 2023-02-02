@@ -2,6 +2,7 @@
 package main
 
 import (
+	"EFpractic2/pkg/config"
 	"os"
 
 	"EFpractic2/pkg/handler"
@@ -29,7 +30,15 @@ func main() {
 		},
 	}))
 
-	db, err := repository.NewPostgresDB()
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error":  err,
+			"config": cfg,
+		}).Fatal("failed to get config")
+	}
+
+	db, err := repository.NewPostgresDB(cfg)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error connection to database rep.NewPostgresDB()": err,
@@ -37,9 +46,15 @@ func main() {
 	}
 	defer repository.ClosePool(db)
 
-	repos := repository.NewRepository(db)
-	services := service.NewService(repos)
-	handlers := handler.NewHandler(services)
+	profileRepo := repository.NewUserAuthPostgres(db)
+	bookRepo := repository.NewBookActPostgres(db)
 
-	handlers.InitRoutes(e)
+	profileServ := service.NewAuthService(profileRepo)
+	bookServ := service.NewBookActSrv(bookRepo)
+
+	profileHandlers := handler.NewHandler(profileServ)
+	bookHandlers := handler.NewHandler(bookServ)
+
+	profileHandlers.InitRoutes(e)
+	bookHandlers.InitRoutes(e)
 }

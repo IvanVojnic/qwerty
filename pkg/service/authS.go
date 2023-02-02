@@ -7,20 +7,26 @@ import (
 	"fmt"
 
 	"EFpractic2/models"
-	"EFpractic2/pkg/repository"
-
 	"github.com/google/uuid"
 )
 
 const salt = "s53d42fg98gh7j6kkbver"
 
+// Authorization interface consists of methos to communicate with user repo
+type Authorization interface {
+	CreateAuthUser(context.Context, *models.UserAuth) error
+	GetUserByID(context.Context, uuid.UUID) (models.UserAuth, error)
+	UpdateRefreshToken(context.Context, string, uuid.UUID) error
+	SignInUser(context.Context, *models.UserAuth) error
+}
+
 // AuthService is wrapper for user repo
 type AuthService struct {
-	repo repository.UserAuthPostgres
+	repo Authorization
 }
 
 // NewAuthService used to init AS
-func NewAuthService(repo repository.UserAuthPostgres) *AuthService {
+func NewAuthService(repo Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
