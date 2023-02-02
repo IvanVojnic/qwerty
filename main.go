@@ -29,7 +29,6 @@ func main() {
 			return nil
 		},
 	}))
-
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.WithFields(log.Fields{

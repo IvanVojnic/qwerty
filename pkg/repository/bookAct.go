@@ -21,13 +21,13 @@ func NewBookActPostgres(db *pgxpool.Pool) *BookActPostgres {
 }
 
 // CreateBook used to create book
-func (r *BookActPostgres) CreateBook(ctx context.Context, book models.Book) error {
+func (r *BookActPostgres) CreateBook(ctx context.Context, book models.Book) (error, error) {
 	_, err := r.db.Exec(ctx, "insert into books (name, age, regular, password) values($1, $2, $3, $4)",
 		book.BookName, book.BookYear, book.BookNew)
 	if err != nil {
-		return fmt.Errorf("error while book creating: %v", err)
+		return fmt.Errorf("error while book creating: %v", err), nil
 	}
-	return nil
+	return nil, nil
 }
 
 // UpdateBook used to update book

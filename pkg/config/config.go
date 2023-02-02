@@ -19,7 +19,7 @@ type Config struct {
 // NewConfig used to init config to db
 func NewConfig() (*Config, error) {
 	Cfg := &Config{}
-	if err := env.Parse(&Cfg); err != nil {
+	if err := env.Parse(Cfg); err != nil {
 		return nil, fmt.Errorf("config - NewConfig: %v", err)
 	}
 
