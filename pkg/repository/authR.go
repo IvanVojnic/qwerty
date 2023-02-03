@@ -56,7 +56,7 @@ func (r *UserAuthPostgres) GetUserByID(ctx context.Context, userID uuid.UUID) (m
 // SignInUser used to sign in user
 func (r *UserAuthPostgres) SignInUser(ctx context.Context, user *models.UserAuth) error {
 	err := r.db.QueryRow(ctx,
-		"select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where name=$1",
+		`select usersauth.id, usersauth.name, usersauth.age, usersauth.regular, usersauth.password, usersauth.refreshtoken from usersauth where name=$1`,
 		user.UserName).Scan(&user.UserID, &user.UserName, &user.UserAge, &user.UserIsRegular, &user.Password, &user.RefreshToken)
 	if err != nil {
 		return fmt.Errorf("error while getting user %w", err)

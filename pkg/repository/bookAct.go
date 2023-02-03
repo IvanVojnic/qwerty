@@ -21,18 +21,22 @@ func NewBookActPostgres(db *pgxpool.Pool) *BookActPostgres {
 }
 
 // CreateBook used to create book
-func (r *BookActPostgres) CreateBook(ctx context.Context, book models.Book) (error, error) {
-	_, err := r.db.Exec(ctx, "insert into books (name, age, regular, password) values($1, $2, $3, $4)",
+func (r *BookActPostgres) CreateBook(ctx context.Context, book models.Book) error {
+	_, err := r.db.Exec(ctx, "insert into books (name, year, new) values($1, $2, $3)",
 		book.BookName, book.BookYear, book.BookNew)
 	if err != nil {
-		return fmt.Errorf("error while book creating: %v", err), nil
+		return fmt.Errorf("error while book creating: %v", err)
 	}
-	return nil, nil
+	return nil
 }
 
 // UpdateBook used to update book
 func (r *BookActPostgres) UpdateBook(ctx context.Context, book models.Book) error {
-	_, err := r.db.Exec(ctx, "UPDATE books SET name = $1, age = $2, regular =$3 WHERE id = $4", book.BookName, book.BookYear, book.BookNew, book.BookID)
+	_, err := r.db.Exec(ctx,
+		`UPDATE books 
+			SET "name" = $1, "year" = $2, "new" =$3 
+			WHERE id = $4`,
+		book.BookName, book.BookYear, book.BookNew, book.BookID)
 	if err != nil {
 		return fmt.Errorf("update book error %w", err)
 	}
@@ -62,7 +66,7 @@ func (r *BookActPostgres) DeleteBook(ctx context.Context, bookID int) error {
 // GetAllBooks used to get all books
 func (r *BookActPostgres) GetAllBooks(ctx context.Context) ([]models.Book, error) {
 	books := make([]models.Book, 0)
-	rows, err := r.db.Query(ctx, "select books.id, books.name, books.age, books.regular, from books")
+	rows, err := r.db.Query(ctx, "select books.id, books.name, books.year, books.new, from books")
 	if err != nil {
 		return books, fmt.Errorf("get all books sql script error %w", err)
 	}
