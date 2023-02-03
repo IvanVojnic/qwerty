@@ -130,7 +130,6 @@ func Test_CreateBook(t *testing.T) {
 func TestBookActPostgres_GetBook(t *testing.T) {
 	ctx := context.Background()
 	repos := NewBookActPostgres(db)
-	// var bookFromDB models.Book
 	b := testValidData[0]
 	_, errDel := repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
 	if errDel != nil {
@@ -151,6 +150,9 @@ func TestBookActPostgres_GetBook(t *testing.T) {
 	require.NoError(t, errGet, "get book by ID")
 
 	_, errDel = repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
+	if errDel != nil {
+		log.Fatalf("Could not purge resource: %s", errGetID)
+	}
 }
 
 // Test_UpdateBook used to update book
@@ -187,7 +189,6 @@ func Test_DeleteBook(t *testing.T) {
 	ctx := context.Background()
 	repos := NewBookActPostgres(db)
 	b := testValidData[0]
-	//var book models.Book
 	var err error
 	err = repos.CreateBook(ctx, &b)
 	if err != nil {
