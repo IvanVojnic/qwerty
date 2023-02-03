@@ -9,7 +9,8 @@ import (
 
 // BookAct interface consists of methos to communicate with boockAct repo
 type BookAct interface {
-	CreateBook(context.Context, models.Book) error
+	GetBookId(ctx context.Context, bookName string) (int, error)
+	CreateBook(context.Context, *models.Book) error
 	UpdateBook(context.Context, models.Book) error
 	GetBook(context.Context, int) (models.Book, error)
 	DeleteBook(context.Context, int) error
@@ -28,7 +29,7 @@ func NewBookActSrv(repo BookAct) *BookActSrv {
 
 // CreateBook used to create book
 func (s *BookActSrv) CreateBook(ctx context.Context, book models.Book) error {
-	return s.repo.CreateBook(ctx, book)
+	return s.repo.CreateBook(ctx, &book)
 }
 
 // UpdateBook used update book

@@ -2,10 +2,9 @@
 package repository
 
 import (
+	"EFpractic2/models"
 	"context"
 	"fmt"
-
-	"EFpractic2/models"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -21,13 +20,22 @@ func NewBookActPostgres(db *pgxpool.Pool) *BookActPostgres {
 }
 
 // CreateBook used to create book
-func (r *BookActPostgres) CreateBook(ctx context.Context, book models.Book) error {
+func (r *BookActPostgres) CreateBook(ctx context.Context, book *models.Book) error {
 	_, err := r.db.Exec(ctx, "insert into books (name, year, new) values($1, $2, $3)",
-		book.BookName, book.BookYear, book.BookNew)
+		&book.BookName, &book.BookYear, &book.BookNew)
 	if err != nil {
 		return fmt.Errorf("error while book creating: %v", err)
 	}
 	return nil
+}
+
+func (r *BookActPostgres) GetBookId(ctx context.Context, bookName string) (int, error) {
+	var idBook int
+	err := r.db.QueryRow(ctx, "select books.id from books where books.name=$1", bookName).Scan(&idBook)
+	if err != nil {
+		return 0, fmt.Errorf("error: cannot get id, %w", err)
+	}
+	return idBook, nil
 }
 
 // UpdateBook used to update book
@@ -46,8 +54,11 @@ func (r *BookActPostgres) UpdateBook(ctx context.Context, book models.Book) erro
 // GetBook used to get book
 func (r *BookActPostgres) GetBook(ctx context.Context, bookID int) (models.Book, error) {
 	book := models.Book{}
-	err := r.db.QueryRow(ctx, "select books.id, books.name, books.year, book.new, from books where id=$1", bookID).Scan(
-		&book.BookID, &book.BookName, &book.BookYear, &book.BookNew)
+	err := r.db.QueryRow(ctx,
+		`select books.id, books.name, books.year, books.new 
+			 from books 
+			 where books.id=$1`,
+		bookID).Scan(&book.BookID, &book.BookName, &book.BookYear, &book.BookNew)
 	if err != nil {
 		return book, fmt.Errorf("get book error %w", err)
 	}

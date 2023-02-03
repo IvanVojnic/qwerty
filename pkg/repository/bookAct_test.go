@@ -2,16 +2,18 @@
 package repository
 
 import (
-	"EFpractic2/models"
 	"context"
 	"fmt"
+	"os"
+	"os/exec"
+	"testing"
+
+	"EFpractic2/models"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/ory/dockertest/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
-	"os"
-	"os/exec"
-	"testing"
 )
 
 var testValidData = []models.Book{
@@ -118,37 +120,83 @@ func Test_CreateBook(t *testing.T) {
 	ctx := context.Background()
 	repos := NewBookActPostgres(db)
 	for _, b := range testValidData {
-		err := repos.CreateBook(ctx, b)
+		err := repos.CreateBook(ctx, &b)
 		require.NoError(t, err, "create error")
 		repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
 	}
-	/*	for _, b := range testNotValidData {
-			err := repos.CreateBook(ctx, b)
-			require.Error(t, err, "create error")
-		}
-		for _, b := range testValidData {
-			err := repos.CreateBook(ctx, b)
-			require.NoError(t, err, "create error")
-
-			err = repos.CreateBook(ctx, b)
-			require.Error(t, err, "create error")
-		}*/
 }
 
+// TestBookActPostgres_GetBook used to get book
 func TestBookActPostgres_GetBook(t *testing.T) {
 	ctx := context.Background()
 	repos := NewBookActPostgres(db)
-
-	var bookFromDB models.Book
-	for _, b := range testValidData {
-		_, err := repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
-
-		bookFromDB, err = repos.GetBook(ctx, b.BookID)
-		require.Equal(t, bookFromDB.BookName, b.BookName)
-		require.Equal(t, bookFromDB.BookYear, b.BookYear)
-		require.Equal(t, bookFromDB.BookNew, b.BookNew)
-		require.NoError(t, err, "get book by ID")
-
-		_, err = repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
+	// var bookFromDB models.Book
+	b := testValidData[0]
+	_, errDel := repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
+	if errDel != nil {
+		log.Fatalf("Could not purge resource: %s", errDel)
 	}
+	errCreate := repos.CreateBook(ctx, &b)
+	if errCreate != nil {
+		log.Fatalf("Could not purge resource: %s", errCreate)
+	}
+	id, errGetID := repos.GetBookId(ctx, b.BookName)
+	if errGetID != nil {
+		log.Fatalf("Could not purge resource: %s", errGetID)
+	}
+	bookFromDB, errGet := repos.GetBook(ctx, id)
+	require.Equal(t, bookFromDB.BookName, b.BookName)
+	require.Equal(t, bookFromDB.BookYear, b.BookYear)
+	require.Equal(t, bookFromDB.BookNew, b.BookNew)
+	require.NoError(t, errGet, "get book by ID")
+
+	_, errDel = repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
+}
+
+// Test_UpdateBook used to update book
+func Test_UpdateBook(t *testing.T) {
+	ctx := context.Background()
+	repos := NewBookActPostgres(db)
+	book1 := testValidData[0]
+	book2 := testValidData[1]
+	var err error
+	_, err = repos.db.Exec(ctx, "delete from books where name=$1", book1.BookName)
+	if err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+	err = repos.CreateBook(ctx, &book1)
+	if err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+	id, errGetId := repos.GetBookId(ctx, book1.BookName)
+	if errGetId != nil {
+		log.Fatalf("Could not purge resource: %s", errGetId)
+	}
+	book2.BookID = id
+	err = repos.UpdateBook(ctx, book2)
+	updatedBook, err := repos.GetBook(ctx, book2.BookID)
+	require.NotEqual(t, updatedBook.BookName, book1.BookName)
+	require.NotEqual(t, updatedBook.BookYear, book1.BookYear)
+	require.NotEqual(t, updatedBook.BookNew, book1.BookNew)
+	require.NoError(t, err, "create error")
+	repos.db.Exec(ctx, "delete from books where name=$1", book1.BookName)
+}
+
+// Test_DeleteBook used to delete book
+func Test_DeleteBook(t *testing.T) {
+	ctx := context.Background()
+	repos := NewBookActPostgres(db)
+	b := testValidData[0]
+	//var book models.Book
+	var err error
+	err = repos.CreateBook(ctx, &b)
+	if err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+	err = repos.DeleteBook(ctx, b.BookID)
+	if err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+	book, errGet := repos.GetBook(ctx, b.BookID)
+	require.Errorf(t, errGet, "create error, book: %s", book)
 }
