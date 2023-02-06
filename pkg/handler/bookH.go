@@ -2,6 +2,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,9 +12,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (h *Handler) createBook(c echo.Context) error { // nolint:dupl, gocritic
+func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
+	if errVal := c.Validate(book.BookYear); errVal != nil {
+		log.Error(fmt.Errorf("error - data is not valid, %s", errVal))
+		return echo.NewHTTPError(http.StatusForbidden, "data is not valid")
+	}
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error Bind json while creating book": err,
@@ -32,7 +37,7 @@ func (h *Handler) createBook(c echo.Context) error { // nolint:dupl, gocritic
 	return c.String(http.StatusOK, "book created")
 }
 
-func (h *Handler) getBook(c echo.Context) error {
+func (h *Handler) GetBook(c echo.Context) error {
 	bookID := c.QueryParam("id")
 	var bookIDNum int
 	bookIDNum, _ = strconv.Atoi(bookID)
@@ -47,7 +52,7 @@ func (h *Handler) getBook(c echo.Context) error {
 	return c.JSON(http.StatusOK, book)
 }
 
-func (h *Handler) updateBook(c echo.Context) error { // nolint:dupl, gocritic
+func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
 	if err != nil {
@@ -68,7 +73,7 @@ func (h *Handler) updateBook(c echo.Context) error { // nolint:dupl, gocritic
 	return c.String(http.StatusOK, "book updated")
 }
 
-func (h *Handler) deleteBook(c echo.Context) error {
+func (h *Handler) DeleteBook(c echo.Context) error {
 	bookID := c.QueryParam("id")
 	var bookIDNum int
 	bookIDNum, _ = strconv.Atoi(bookID)
@@ -83,7 +88,7 @@ func (h *Handler) deleteBook(c echo.Context) error {
 	return c.String(http.StatusOK, "bool deleted")
 }
 
-func (h *Handler) getAllBooks(c echo.Context) error {
+func (h *Handler) GetAllBooks(c echo.Context) error {
 	books, err := h.serviceBook.GetAllBooks(c.Request().Context())
 	if err != nil {
 		log.WithFields(log.Fields{

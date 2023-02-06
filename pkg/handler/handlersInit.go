@@ -4,6 +4,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 
 	"EFpractic2/models"
@@ -57,15 +58,16 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 		return c.String(http.StatusOK, "hello world")
 	})
 	rAct := router.Group("/book")
+	router.Validator = &CustomValidator{validator: validator.New()}
 	router.POST("/refreshToken", h.refreshToken)
 	router.POST("/createUser", h.signUp)
 	router.POST("/signIn", h.signIn)
 	rAct.Use(middleware.Logger())
-	rAct.POST("/create", h.createBook)
-	rAct.GET("/get", h.getBook)
-	rAct.POST("/update", h.updateBook)
-	rAct.GET("/delete", h.deleteBook)
-	rAct.GET("/getAllBooks", h.getAllBooks)
+	rAct.POST("/create", h.CreateBook)
+	rAct.GET("/get", h.GetBook)
+	rAct.POST("/update", h.UpdateBook)
+	rAct.GET("/delete", h.DeleteBook)
+	rAct.GET("/getAllBooks", h.GetAllBooks)
 	rVerified := router.Group("/verified")
 	rVerified.Use(jwtAuthMiddleware())
 	rVerified.POST("/getUserAuth", h.getUserAuth)
