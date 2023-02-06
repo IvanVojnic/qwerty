@@ -23,6 +23,7 @@ func TestBookActSrv_CreateBook(t *testing.T) {
 	repo.On("CreateBook", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("*models.Book")).Return(nil).Once()
 	service := NewBookActSrv(repo)
 	err := service.CreateBook(ctx, testBook1)
+	print("hello")
 	require.NoError(t, err)
 }
 
