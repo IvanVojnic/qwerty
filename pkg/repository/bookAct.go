@@ -29,6 +29,7 @@ func (r *BookActPostgres) CreateBook(ctx context.Context, book *models.Book) err
 	return nil
 }
 
+// GetBookId used to get book with id
 func (r *BookActPostgres) GetBookId(ctx context.Context, bookName string) (int, error) {
 	var idBook int
 	err := r.db.QueryRow(ctx, "select books.id from books where books.name=$1", bookName).Scan(&idBook)
