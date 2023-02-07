@@ -14,6 +14,8 @@ type Config struct {
 	PASSWORD    string `env:"PASSWORD" envDefault:"postgres"`
 	PORT        int    `env:"PORT" envDefault:"5432"`
 	DB          string `env:"DB" envDefault:"postgres"`
+	MongoURL    string `env:"mUrl" envDefault:"mongodb://mongo:mongo@localhost:27017"`
+	MongoDB     string `env:"DB" envDefault:"mongo"`
 }
 
 // NewConfig used to init config to db

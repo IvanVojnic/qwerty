@@ -2,14 +2,13 @@
 package handler
 
 import (
+	"EFpractic2/models"
+	"EFpractic2/pkg/errorwrapper"
+	"EFpractic2/pkg/utils"
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"net/http"
-
-	"EFpractic2/models"
-	"EFpractic2/pkg/errorwrapper"
-	"EFpractic2/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -20,9 +19,9 @@ import (
 type BookAct interface {
 	CreateBook(context.Context, models.Book) error
 	UpdateBook(context.Context, models.Book) error
-	GetBook(context.Context, int) (models.Book, error)
-	DeleteBook(context.Context, int) error
+	DeleteBook(context.Context, string) error
 	GetAllBooks(context.Context) ([]models.Book, error)
+	GetBookByName(context.Context, string) (models.Book, error)
 }
 
 // Authorization service consists of methods fo user
@@ -64,7 +63,7 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	router.POST("/signIn", h.signIn)
 	rAct.Use(middleware.Logger())
 	rAct.POST("/create", h.CreateBook)
-	rAct.GET("/get", h.GetBook)
+	rAct.GET("/get", h.GetBookByName)
 	rAct.POST("/update", h.UpdateBook)
 	rAct.GET("/delete", h.DeleteBook)
 	rAct.GET("/getAllBooks", h.GetAllBooks)
@@ -74,6 +73,12 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	router.Logger.Fatal(router.Start(":40000"))
 	return router
 }
+
+/*
+func (h *Handler) getDBType(c echo.Context) error {
+	utils.DBType = c.QueryParam("db")
+	return c.String(http.StatusOK, "db installed")
+}*/
 
 func jwtAuthMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {

@@ -2,11 +2,8 @@
 package handler
 
 import (
-	"fmt"
-	"net/http"
-	"strconv"
-
 	"EFpractic2/models"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
@@ -15,10 +12,10 @@ import (
 func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
-	if errVal := c.Validate(book.BookYear); errVal != nil {
+	/*if errVal := c.Validate(book.BookYear); errVal != nil {
 		log.Error(fmt.Errorf("error - data is not valid, %s", errVal))
 		return echo.NewHTTPError(http.StatusForbidden, "data is not valid")
-	}
+	}*/
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error Bind json while creating book": err,
@@ -35,21 +32,6 @@ func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 		return echo.NewHTTPError(http.StatusBadRequest, "book creating failed")
 	}
 	return c.String(http.StatusOK, "book created")
-}
-
-func (h *Handler) GetBook(c echo.Context) error {
-	bookID := c.QueryParam("id")
-	var bookIDNum int
-	bookIDNum, _ = strconv.Atoi(bookID)
-	book, err := h.serviceBook.GetBook(c.Request().Context(), bookIDNum)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Error get book": err,
-			"book":           book,
-		}).Info("GET BOOK request")
-		return echo.NewHTTPError(http.StatusBadRequest, "book getting failed")
-	}
-	return c.JSON(http.StatusOK, book)
 }
 
 func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
@@ -74,14 +56,12 @@ func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
 }
 
 func (h *Handler) DeleteBook(c echo.Context) error {
-	bookID := c.QueryParam("id")
-	var bookIDNum int
-	bookIDNum, _ = strconv.Atoi(bookID)
-	err := h.serviceBook.DeleteBook(c.Request().Context(), bookIDNum)
+	bookName := c.QueryParam("name")
+	err := h.serviceBook.DeleteBook(c.Request().Context(), bookName)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error get book": err,
-			"book ID":        bookID,
+			"book ID":        bookName,
 		}).Info("DELETE BOOK request")
 		return echo.NewHTTPError(http.StatusBadRequest, "book deleting failed")
 	}
@@ -98,4 +78,17 @@ func (h *Handler) GetAllBooks(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	return c.JSON(http.StatusOK, books)
+}
+
+func (h *Handler) GetBookByName(c echo.Context) error {
+	bookName := c.QueryParam("name")
+	book, err := h.serviceBook.GetBookByName(c.Request().Context(), bookName)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error get book": err,
+			"book":           book,
+		}).Info("GET BOOK request")
+		return echo.NewHTTPError(http.StatusBadRequest, "cannot get book")
+	}
+	return c.JSON(http.StatusOK, book)
 }
