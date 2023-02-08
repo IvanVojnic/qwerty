@@ -14,6 +14,9 @@ import (
 // bookID is a test book id
 const bookID = 1
 
+// bookName is a test book name
+const bookName = "name"
+
 var testBook1 = models.Book{BookName: "name1", BookYear: 2002, BookNew: false}
 var testBook2 = models.Book{BookName: "name2", BookYear: 2023, BookNew: true}
 
@@ -54,6 +57,6 @@ func TestBookActSrv_GetBook(t *testing.T) {
 	ctx := context.Background()
 	repo.On("GetBook", mock.AnythingOfType("*context.emptyCtx"), mock.AnythingOfType("int")).Return(models.Book{}, nil).Once()
 	service := NewBookActSrv(repo)
-	_, err := service.GetBook(ctx, bookID)
+	_, err := service.GetBookByName(ctx, bookName)
 	require.NoError(t, err)
 }

@@ -8,14 +8,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"html/template"
-	"io"
-	"net/http"
-	"os"
-
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"html/template"
+	"io"
+	"net/http"
 )
 
 // BookAct service consists of methods fo book
@@ -25,6 +23,11 @@ type BookAct interface {
 	DeleteBook(context.Context, string) error
 	GetAllBooks(context.Context) ([]models.Book, error)
 	GetBookByName(context.Context, string) (models.Book, error)
+}
+
+// ImgUpload service consists of methods fo images
+type ImgUpload interface {
+	CreateImg(context.Context, *models.Image) error
 }
 
 // Authorization service consists of methods fo user
@@ -38,13 +41,15 @@ type Authorization interface {
 type Handler struct {
 	serviceProfile Authorization
 	serviceBook    BookAct
+	serviceImg     ImgUpload
 }
 
 // NewHandler used to init Handler
-func NewHandler(serviceAuth Authorization, serviceBook BookAct) *Handler {
+func NewHandler(serviceAuth Authorization, serviceBook BookAct, serviceImg ImgUpload) *Handler {
 	return &Handler{
 		serviceProfile: serviceAuth,
 		serviceBook:    serviceBook,
+		serviceImg:     serviceImg,
 	}
 }
 
@@ -74,13 +79,14 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	router.GET("/", h.HomeHandler)
 
 	rAct := router.Group("/book")
+	rImg := router.Group("/image")
+	rImg.POST("/uploadImg", h.CreateImg)
 	router.Validator = &CustomValidator{validator: validator.New()}
 	router.POST("/refreshToken", h.refreshToken)
 	router.POST("/createUser", h.signUp)
 	router.POST("/signIn", h.signIn)
 	rAct.Use(middleware.Logger())
 	rAct.POST("/create", h.CreateBook)
-	rAct.POST("/upload", upload)
 	rAct.GET("/get", h.GetBookByName)
 	rAct.POST("/update", h.UpdateBook)
 	rAct.GET("/delete", h.DeleteBook)
@@ -90,32 +96,6 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	rVerified.POST("/getUserAuth", h.getUserAuth)
 	router.Logger.Fatal(router.Start(":40000"))
 	return router
-}
-
-func upload(c echo.Context) error {
-	file, err := c.FormFile("file")
-	if err != nil {
-		return err
-	}
-	src, err := file.Open()
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-
-	// Destination
-	dst, err := os.Create("pkg/public/assets/" + file.Filename)
-	if err != nil {
-		return err
-	}
-	defer dst.Close()
-
-	// Copy
-	if _, err = io.Copy(dst, src); err != nil {
-		return err
-	}
-
-	return c.HTML(http.StatusOK, fmt.Sprintf("<p>File %s uploaded successfully</p>", file.Filename))
 }
 
 func jwtAuthMiddleware() echo.MiddlewareFunc {

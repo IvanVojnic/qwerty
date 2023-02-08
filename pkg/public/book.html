@@ -7,7 +7,10 @@
 <body>
 <h1>Upload single file</h1>
 
-<form action="/image/uploadImg" method="post" enctype="multipart/form-data">
+<form action="/book/upload" method="post" enctype="multipart/form-data">
+    Name: <input type="text" name="name"><br><br>
+    Year: <input type="number" name="year"><br><br>
+    New: <input type="checkbox" name="new" value="true"><br><br>
     Files: <input type="file" name="file"><br><br>
     <input type="submit" value="Submit">
 </form>

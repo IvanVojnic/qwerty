@@ -39,7 +39,7 @@ services:
   flyway:
     image: flyway/flyway
     # postgres url schema: jdbc:postgresql://host:port/database
-    command: -url=jdbc:postgresql://postgres:5432/postgres -user=postgres -password=postgres -locations=filesystem:/flyway/sql -connectRetries=10  mig  rate
+    command: -url=jdbc:postgresql://postgres:5432/postgres -user=postgres -password=postgres -locations=filesystem:/flyway/sql -connectRetries=10  migrate
     volumes:
       - ${PWD}/migrations/sql:/flyway/sql
     links:

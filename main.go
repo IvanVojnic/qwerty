@@ -36,13 +36,14 @@ func main() {
 			"config": cfg,
 		}).Fatal("failed to get config")
 	}
-	dbType := 1
+	dbType := 0
 	initProjectStruct(cfg, e, dbType)
 }
 
 func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 	var profileServ *service.AuthService
 	var bookServ *service.BookActSrv
+	var imgServ *service.ImgUpSrv
 	switch dbType {
 	case 0:
 		db, err := repository.NewPostgresDB(cfg)
@@ -54,8 +55,10 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 		defer repository.ClosePool(db)
 		profileRepo := repository.NewUserAuthPostgres(db)
 		bookRepo := repository.NewBookActPostgres(db)
+		imgRepo := repository.NewImgPostgres(db)
 		profileServ = service.NewAuthService(profileRepo)
 		bookServ = service.NewBookActSrv(bookRepo)
+		imgServ = service.NewImgUpSrv(imgRepo)
 	case 1:
 		mDB, err := repository.NewMongoDB(cfg)
 		if err != nil {
@@ -65,12 +68,11 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 		}
 		defer mDB.Client().Disconnect(context.Background())
 
-		// profileRepo := repository.NewUserAuthMongo(mDB)
 		bookRepo := repository.NewBookActMongo(mDB)
-		// profileServ = service.NewAuthService(profileRepo)
+
 		bookServ = service.NewBookActSrv(bookRepo)
 	}
 
-	profileHandlers := handler.NewHandler(profileServ, bookServ)
+	profileHandlers := handler.NewHandler(profileServ, bookServ, imgServ)
 	profileHandlers.InitRoutes(e)
 }
