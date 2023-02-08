@@ -53,9 +53,9 @@ func (r *BookActMongo) UpdateBook(ctx context.Context, book models.Book) error {
 	}
 	update := bson.D{
 		{"$set", bson.D{
-			{"bookname", book.BookName},
-			{"bookyear", book.BookYear},
-			{"booknew", book.BookNew},
+			{"name", book.BookName},
+			{"year", book.BookYear},
+			{"new", book.BookNew},
 		}},
 	}
 	_, err := r.coll.UpdateOne(ctx, filter, update)
@@ -68,7 +68,7 @@ func (r *BookActMongo) UpdateBook(ctx context.Context, book models.Book) error {
 // GetBook used to get book
 func (r *BookActMongo) GetBookByName(ctx context.Context, bookName string) (models.Book, error) {
 	book := models.Book{}
-	filter := bson.D{{"bookname", bookName}} //nolint:govet
+	filter := bson.D{{"name", bookName}} //nolint:govet
 	err := r.coll.FindOne(ctx, filter).Decode(&book)
 	if err != nil {
 		return models.Book{}, fmt.Errorf("error while getting book %s", err)
@@ -78,7 +78,7 @@ func (r *BookActMongo) GetBookByName(ctx context.Context, bookName string) (mode
 
 // DeleteBook used to delete book
 func (r *BookActMongo) DeleteBook(ctx context.Context, bookName string) error {
-	filter := bson.D{{"bookname", bookName}} //
+	filter := bson.D{{"name", bookName}} //
 	_, err := r.coll.DeleteOne(ctx, filter)
 	if err != nil {
 		return fmt.Errorf("error while deleting %s", err)

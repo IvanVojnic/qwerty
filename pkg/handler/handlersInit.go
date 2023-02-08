@@ -7,7 +7,6 @@ import (
 	"EFpractic2/pkg/utils"
 	"context"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -57,7 +56,7 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 		return c.String(http.StatusOK, "hello world")
 	})
 	rAct := router.Group("/book")
-	router.Validator = &CustomValidator{validator: validator.New()}
+	//router.Validator = &CustomValidator{validator: validator.New()}
 	router.POST("/refreshToken", h.refreshToken)
 	router.POST("/createUser", h.signUp)
 	router.POST("/signIn", h.signIn)
