@@ -1,3 +1,4 @@
+// Package repository mongo db
 package repository
 
 import (
@@ -65,7 +66,7 @@ func (r *BookActMongo) UpdateBook(ctx context.Context, book models.Book) error {
 	return nil
 }
 
-// GetBook used to get book
+// GetBookByName used to get book
 func (r *BookActMongo) GetBookByName(ctx context.Context, bookName string) (models.Book, error) {
 	book := models.Book{}
 	filter := bson.D{{"name", bookName}} //nolint:govet

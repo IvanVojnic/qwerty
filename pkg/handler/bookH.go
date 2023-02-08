@@ -9,13 +9,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func (h *Handler) HomeHandler(c echo.Context) error {
+	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
+		"name": "upload",
+	})
+}
+
+// CreateBook used to create book
 func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
-	/*if errVal := c.Validate(book.BookYear); errVal != nil {
-		log.Error(fmt.Errorf("error - data is not valid, %s", errVal))
-		return echo.NewHTTPError(http.StatusForbidden, "data is not valid")
-	}*/
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Error Bind json while creating book": err,
@@ -34,6 +37,7 @@ func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 	return c.String(http.StatusOK, "book created")
 }
 
+// UpdateBook used to update book
 func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
@@ -55,6 +59,7 @@ func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
 	return c.String(http.StatusOK, "book updated")
 }
 
+// DeleteBook used to delete book
 func (h *Handler) DeleteBook(c echo.Context) error {
 	bookName := c.QueryParam("name")
 	err := h.serviceBook.DeleteBook(c.Request().Context(), bookName)
@@ -68,6 +73,7 @@ func (h *Handler) DeleteBook(c echo.Context) error {
 	return c.String(http.StatusOK, "bool deleted")
 }
 
+// GetAllBooks used to get all books
 func (h *Handler) GetAllBooks(c echo.Context) error {
 	books, err := h.serviceBook.GetAllBooks(c.Request().Context())
 	if err != nil {
@@ -80,6 +86,7 @@ func (h *Handler) GetAllBooks(c echo.Context) error {
 	return c.JSON(http.StatusOK, books)
 }
 
+// GetBookByName used to get book by name
 func (h *Handler) GetBookByName(c echo.Context) error {
 	bookName := c.QueryParam("name")
 	book, err := h.serviceBook.GetBookByName(c.Request().Context(), bookName)
