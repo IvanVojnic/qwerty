@@ -23,7 +23,6 @@ const getImg = async (imgID) => {
             image.src = e.target.result;
             this.$el.append(image);
         });
-
         reader.readAsDataURL(blob);
     }
 }
