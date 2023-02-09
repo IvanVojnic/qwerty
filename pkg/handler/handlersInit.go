@@ -2,18 +2,20 @@
 package handler
 
 import (
+	"context"
+	"fmt"
+	"html/template"
+	"io"
+	"net/http"
+
 	"EFpractic2/models"
 	"EFpractic2/pkg/errorwrapper"
 	"EFpractic2/pkg/utils"
-	"context"
-	"fmt"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"html/template"
-	"io"
-	"net/http"
 )
 
 // BookAct service consists of methods fo book
@@ -28,6 +30,7 @@ type BookAct interface {
 // ImgUpload service consists of methods fo images
 type ImgUpload interface {
 	CreateImg(context.Context, *models.Image) error
+	GetImages(context.Context) ([]models.Image, error)
 }
 
 // Authorization service consists of methods fo user
@@ -77,10 +80,15 @@ func (h *Handler) InitRoutes(router *echo.Echo) *echo.Echo {
 	}
 
 	router.GET("/", h.HomeHandler)
+	router.GET("/ind.js", func(c echo.Context) error {
+		return c.File("pkg/public/ind.js")
+	})
 
 	rAct := router.Group("/book")
 	rImg := router.Group("/image")
 	rImg.POST("/uploadImg", h.CreateImg)
+	rImg.GET("/getImages", h.GetImages)
+	rImg.POST("/getImage", h.GetCurrentImage)
 	router.Validator = &CustomValidator{validator: validator.New()}
 	router.POST("/refreshToken", h.refreshToken)
 	router.POST("/createUser", h.signUp)

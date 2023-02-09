@@ -75,7 +75,7 @@ func (r *BookActPostgres) DeleteBook(ctx context.Context, bookName string) error
 // GetAllBooks used to get all books
 func (r *BookActPostgres) GetAllBooks(ctx context.Context) ([]models.Book, error) {
 	books := make([]models.Book, 0)
-	rows, err := r.db.Query(ctx, "select books.id, books.name, books.year, books.new, from books")
+	rows, err := r.db.Query(ctx, "select books.id, books.name, books.year, books.new from books")
 	if err != nil {
 		return books, fmt.Errorf("get all books sql script error %w", err)
 	}

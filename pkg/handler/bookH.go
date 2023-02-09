@@ -10,9 +10,9 @@ import (
 )
 
 func (h *Handler) HomeHandler(c echo.Context) error {
-	return c.Render(http.StatusOK, "index.html", map[string]interface{}{
-		"name": "upload",
-	})
+	return c.File("pkg/public/index.html") // c.Render(http.StatusOK, "index.html", map[string]interface{}{
+	// 	"name": "upload",
+	//	})
 }
 
 // CreateBook used to create book

@@ -46,3 +46,28 @@ func (h *Handler) CreateImg(c echo.Context) error {
 	defer dst.Close()
 	return c.HTML(http.StatusOK, fmt.Sprintf("<p>File %s uploaded successfully</p>", file.Filename))
 }
+
+// GetImages used to get all image's routes
+func (h *Handler) GetImages(c echo.Context) error {
+	images, err := h.serviceImg.GetImages(c.Request().Context())
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error get all images": err,
+			"images":               images,
+		}).Info("GET ALL images request")
+		return echo.NewHTTPError(http.StatusForbidden, "error while getting images")
+	}
+	return c.JSON(http.StatusOK, images)
+}
+
+func (h *Handler) GetCurrentImage(c echo.Context) error {
+	var image models.Image
+	err := c.Bind(&image)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Error get image route": err,
+		}).Info("get image route request")
+		return echo.NewHTTPError(http.StatusForbidden, "error while getting single image")
+	}
+	return c.Attachment(image.ImageRoute, image.ImageID.String())
+}

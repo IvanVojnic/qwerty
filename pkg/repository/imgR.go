@@ -29,3 +29,22 @@ func (r *ImgPostgres) CreateImg(ctx context.Context, img *models.Image) error {
 	}
 	return nil
 }
+
+// GetImages used to get image
+func (r *ImgPostgres) GetImages(ctx context.Context) ([]models.Image, error) {
+	images := make([]models.Image, 0)
+	rows, err := r.db.Query(ctx, "select images.id, images.route from images")
+	if err != nil {
+		return images, fmt.Errorf("get all books sql script error %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var img models.Image
+		errScan := rows.Scan(&img.ImageID, &img.ImageRoute)
+		if errScan != nil {
+			return images, fmt.Errorf("get all images scan rows error %w", errScan)
+		}
+		images = append(images, img)
+	}
+	return images, err
+}
