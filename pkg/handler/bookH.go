@@ -3,6 +3,7 @@ package handler
 
 import (
 	"EFpractic2/models"
+
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -16,6 +17,17 @@ func (h *Handler) HomeHandler(c echo.Context) error {
 }
 
 // CreateBook used to create book
+// CreateBook godoc
+//
+// @Summary      add new book
+// @Tags         books
+// @Accept       json
+// @Produce      json
+// @Param        bookcreated	body	string	true	"book created"
+// @Success      200	{string}	string	"book created"
+// @Failure      400
+// @Failure      500
+// @Router       /book/create [post]
 func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
@@ -38,6 +50,18 @@ func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 }
 
 // UpdateBook used to update book
+// UpdateBook used to update book
+// UpdateBook godoc
+//
+// @Summary      update book
+// @Tags         books
+// @Accept       json
+// @Produce      json
+// @Param        bookupdated	body	string	true	"book updated"
+// @Success      200	{string}	string	"book updated"
+// @Failure      400
+// @Failure      500
+// @Router       /book/update	[post]
 func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
 	book := models.Book{}
 	err := c.Bind(&book)
@@ -60,6 +84,18 @@ func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
 }
 
 // DeleteBook used to delete book
+// DeleteBook used to update book
+// DeleteBook godoc
+//
+// @Summary      delete book
+// @Tags         books
+// @Accept       json
+// @Produce      json
+// @Param        bookdeleted	body	string	true	"book deleted"
+// @Success      200	{string}	string	"book deleted"
+// @Failure      400
+// @Failure      500
+// @Router       /book/delete	[get]
 func (h *Handler) DeleteBook(c echo.Context) error {
 	bookName := c.QueryParam("name")
 	err := h.serviceBook.DeleteBook(c.Request().Context(), bookName)
@@ -74,6 +110,18 @@ func (h *Handler) DeleteBook(c echo.Context) error {
 }
 
 // GetAllBooks used to get all books
+// GetAllBooks used to update book
+// GetAllBooks godoc
+//
+// @Summary      get all book
+// @Tags         books
+// @Accept       json
+// @Produce      json
+// @Param        getbooks	query	string	false	"books"	models.Book
+// @Success      200	{array}	models.Book
+// @Failure      400
+// @Failure      500
+// @Router       /book/getAllBooks	[get]
 func (h *Handler) GetAllBooks(c echo.Context) error {
 	books, err := h.serviceBook.GetAllBooks(c.Request().Context())
 	if err != nil {
@@ -87,6 +135,18 @@ func (h *Handler) GetAllBooks(c echo.Context) error {
 }
 
 // GetBookByName used to get book by name
+// GetBookByName used to update book
+// GetBookByName godoc
+//
+// @Summary      get all book
+// @Tags         books
+// @Accept       json
+// @Produce      json
+// @Param        getbook	body	models.Book false "get"
+// @Success      200	{object}	models.Book
+// @Failure      400
+// @Failure      500
+// @Router       /book/get	[get]
 func (h *Handler) GetBookByName(c echo.Context) error {
 	bookName := c.QueryParam("name")
 	book, err := h.serviceBook.GetBookByName(c.Request().Context(), bookName)

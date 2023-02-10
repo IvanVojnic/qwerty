@@ -1,0 +1,152 @@
+basePath: /v2
+definitions:
+  models.Book:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      new:
+        type: boolean
+      year:
+        type: integer
+    type: object
+host: localhost:40000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a CRUD ENTITY server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /book/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: book created
+        in: body
+        name: bookcreated
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: book created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: add new book
+      tags:
+      - books
+  /book/delete:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: book deleted
+        in: body
+        name: bookdeleted
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: book deleted
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: delete book
+      tags:
+      - books
+  /book/get:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: get
+        in: body
+        name: getbook
+        schema:
+          $ref: '#/definitions/models.Book'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: get all book
+      tags:
+      - books
+  /book/getAllBooks:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: books
+        in: query
+        name: getbooks
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Book'
+            type: array
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: get all book
+      tags:
+      - books
+  /book/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: book updated
+        in: body
+        name: bookupdated
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: book updated
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: update book
+      tags:
+      - books
+swagger: "2.0"

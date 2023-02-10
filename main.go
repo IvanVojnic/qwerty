@@ -6,14 +6,31 @@ import (
 	"EFpractic2/pkg/handler"
 	"EFpractic2/pkg/repository"
 	"EFpractic2/pkg/service"
+
 	"context"
 	"os"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// @title Swagger Example API
+// @version 1.0
+// @description This is a CRUD ENTITY server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:40000
+// @BasePath /v2
 func main() {
 	e := echo.New()
 	logger := log.New()
@@ -36,6 +53,7 @@ func main() {
 			"config": cfg,
 		}).Fatal("failed to get config")
 	}
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	dbType := 0
 	initProjectStruct(cfg, e, dbType)
 }
@@ -44,6 +62,13 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 	var profileServ *service.AuthService
 	var bookServ *service.BookActSrv
 	var imgServ *service.ImgUpSrv
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+	})
+	defer rdb.Close()
+	rds := &repository.Redis{Client: *rdb}
+
 	switch dbType {
 	case 0:
 		db, err := repository.NewPostgresDB(cfg)
