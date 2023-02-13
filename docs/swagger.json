@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "This is a CRUD ENTITY server.",
-        "title": "Swagger Example API",
+        "title": "Swagger EF_CRUD API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
@@ -16,7 +16,7 @@
         "version": "1.0"
     },
     "host": "localhost:40000",
-    "basePath": "/v2",
+    "basePath": "/",
     "paths": {
         "/book/create": {
             "post": {

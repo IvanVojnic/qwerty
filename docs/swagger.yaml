@@ -1,4 +1,4 @@
-basePath: /v2
+basePath: /
 definitions:
   models.Book:
     properties:
@@ -22,7 +22,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
+  title: Swagger EF_CRUD API
   version: "1.0"
 paths:
   /book/create:

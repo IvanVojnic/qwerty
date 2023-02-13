@@ -139,11 +139,7 @@ func TestBookActPostgres_GetBook(t *testing.T) {
 	if errCreate != nil {
 		log.Fatalf("Could not purge resource: %s", errCreate)
 	}
-	id, errGetID := repos.GetBookId(ctx, b.BookName)
-	if errGetID != nil {
-		log.Fatalf("Could not purge resource: %s", errGetID)
-	}
-	bookFromDB, errGet := repos.GetBook(ctx, id)
+	bookFromDB, errGet := repos.GetBookByName(ctx, "book")
 	require.Equal(t, bookFromDB.BookName, b.BookName)
 	require.Equal(t, bookFromDB.BookYear, b.BookYear)
 	require.Equal(t, bookFromDB.BookNew, b.BookNew)
@@ -151,7 +147,7 @@ func TestBookActPostgres_GetBook(t *testing.T) {
 
 	_, errDel = repos.db.Exec(ctx, "delete from books where name=$1", b.BookName)
 	if errDel != nil {
-		log.Fatalf("Could not purge resource: %s", errGetID)
+		log.Fatalf("Could not purge resource: %s", errDel)
 	}
 }
 
@@ -176,7 +172,7 @@ func Test_UpdateBook(t *testing.T) {
 	}
 	book2.BookID = id
 	err = repos.UpdateBook(ctx, book2)
-	updatedBook, err := repos.GetBook(ctx, book2.BookID)
+	updatedBook, err := repos.GetBookByName(ctx, "book")
 	require.NotEqual(t, updatedBook.BookName, book1.BookName)
 	require.NotEqual(t, updatedBook.BookYear, book1.BookYear)
 	require.NotEqual(t, updatedBook.BookNew, book1.BookNew)
@@ -194,10 +190,10 @@ func Test_DeleteBook(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
-	err = repos.DeleteBook(ctx, b.BookID)
+	err = repos.DeleteBook(ctx, "book")
 	if err != nil {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
-	book, errGet := repos.GetBook(ctx, b.BookID)
+	book, errGet := repos.GetBookByName(ctx, "book")
 	require.Errorf(t, errGet, "create error, book: %s", book)
 }

@@ -244,9 +244,9 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:40000",
-	BasePath:         "/v2",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Swagger Example API",
+	Title:            "Swagger EF_CRUD API",
 	Description:      "This is a CRUD ENTITY server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

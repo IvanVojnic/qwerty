@@ -1,5 +1,6 @@
 package handler
 
+/*
 import (
 	"net/http"
 
@@ -26,3 +27,4 @@ func testInit() {
 		e.Validator = &CustomValidator{validator: validator.New()}
 	}
 }
+*/

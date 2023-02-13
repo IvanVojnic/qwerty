@@ -3,6 +3,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 
 	"EFpractic2/models"
@@ -18,18 +19,28 @@ type BookAct interface {
 	GetBookByName(context.Context, string) (models.Book, error)
 }
 
+type BookCache interface {
+	GetBook(ctx context.Context, bookName string) (models.Book, error)
+	CacheBook(ctx context.Context, book *models.Book) error
+}
+
 // BookActSrv wrapper for bookAP repo
 type BookActSrv struct {
-	repo BookAct
+	repo  BookAct
+	cache BookCache
 }
 
 // NewBookActSrv used to init BookAP
-func NewBookActSrv(repo BookAct) *BookActSrv {
-	return &BookActSrv{repo: repo}
+func NewBookActSrv(repo BookAct, cache BookCache) *BookActSrv {
+	return &BookActSrv{repo: repo, cache: cache}
 }
 
 // CreateBook used to create book
 func (s *BookActSrv) CreateBook(ctx context.Context, book models.Book) error {
+	err := s.cache.CacheBook(ctx, &book)
+	if err != nil {
+		return fmt.Errorf("error while caching, %s", err)
+	}
 	return s.repo.CreateBook(ctx, &book)
 }
 
@@ -53,5 +64,9 @@ func (s *BookActSrv) GetAllBooks(ctx context.Context) ([]models.Book, error) {
 }
 
 func (s *BookActSrv) GetBookByName(ctx context.Context, bookName string) (models.Book, error) {
-	return s.repo.GetBookByName(ctx, bookName)
+	book, err := s.cache.GetBook(ctx, bookName)
+	if err != nil {
+		return s.repo.GetBookByName(ctx, bookName)
+	}
+	return book, nil
 }

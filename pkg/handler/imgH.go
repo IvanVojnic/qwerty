@@ -12,9 +12,6 @@ import (
 
 // CreateImg used to create img
 func (h *Handler) CreateImg(c echo.Context) error {
-	/*	name, err := c.FormFile("name")
-		year, err := c.FormFile("year")
-		new, err := c.FormFile("new")*/
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err

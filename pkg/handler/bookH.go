@@ -16,7 +16,6 @@ func (h *Handler) HomeHandler(c echo.Context) error {
 	//	})
 }
 
-// CreateBook used to create book
 // CreateBook godoc
 //
 // @Summary      add new book
@@ -49,8 +48,6 @@ func (h *Handler) CreateBook(c echo.Context) error { // nolint:dupl, gocritic
 	return c.String(http.StatusOK, "book created")
 }
 
-// UpdateBook used to update book
-// UpdateBook used to update book
 // UpdateBook godoc
 //
 // @Summary      update book
@@ -83,8 +80,6 @@ func (h *Handler) UpdateBook(c echo.Context) error { // nolint:dupl, gocritic
 	return c.String(http.StatusOK, "book updated")
 }
 
-// DeleteBook used to delete book
-// DeleteBook used to update book
 // DeleteBook godoc
 //
 // @Summary      delete book
@@ -109,8 +104,6 @@ func (h *Handler) DeleteBook(c echo.Context) error {
 	return c.String(http.StatusOK, "bool deleted")
 }
 
-// GetAllBooks used to get all books
-// GetAllBooks used to update book
 // GetAllBooks godoc
 //
 // @Summary      get all book
@@ -134,8 +127,6 @@ func (h *Handler) GetAllBooks(c echo.Context) error {
 	return c.JSON(http.StatusOK, books)
 }
 
-// GetBookByName used to get book by name
-// GetBookByName used to update book
 // GetBookByName godoc
 //
 // @Summary      get all book

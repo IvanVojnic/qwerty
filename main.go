@@ -2,10 +2,12 @@
 package main
 
 import (
+	_ "EFpractic2/docs"
 	"EFpractic2/pkg/config"
 	"EFpractic2/pkg/handler"
 	"EFpractic2/pkg/repository"
 	"EFpractic2/pkg/service"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"context"
 	"os"
@@ -14,10 +16,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
-	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-// @title Swagger Example API
+// @title Swagger EF_CRUD API
 // @version 1.0
 // @description This is a CRUD ENTITY server.
 // @termsOfService http://swagger.io/terms/
@@ -30,9 +31,11 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host localhost:40000
-// @BasePath /v2
+// @BasePath /
 func main() {
 	e := echo.New()
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	logger := log.New()
 	logger.Out = os.Stdout
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -53,7 +56,6 @@ func main() {
 			"config": cfg,
 		}).Fatal("failed to get config")
 	}
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	dbType := 0
 	initProjectStruct(cfg, e, dbType)
 }
@@ -82,7 +84,7 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 		bookRepo := repository.NewBookActPostgres(db)
 		imgRepo := repository.NewImgPostgres(db)
 		profileServ = service.NewAuthService(profileRepo)
-		bookServ = service.NewBookActSrv(bookRepo)
+		bookServ = service.NewBookActSrv(bookRepo, rds)
 		imgServ = service.NewImgUpSrv(imgRepo)
 	case 1:
 		mDB, err := repository.NewMongoDB(cfg)
@@ -95,7 +97,7 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 
 		bookRepo := repository.NewBookActMongo(mDB)
 
-		bookServ = service.NewBookActSrv(bookRepo)
+		bookServ = service.NewBookActSrv(bookRepo, rds)
 	}
 
 	profileHandlers := handler.NewHandler(profileServ, bookServ, imgServ)
