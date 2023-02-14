@@ -63,7 +63,7 @@ services:
       - postgres
       - flyway
     ports:
-      - "3000:40000"
+      - "40000:40000"
     environment:
       - pUrl=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
       - DB=postgres
@@ -71,5 +71,9 @@ services:
       - USER=postgres
       - PORT=5432
       - mUrl=mongodb://mongo:mongo@localhost:27017
+      - LISTEN_ADDRESS=0.0.0.0:40000
+      - KAFKA_BROKERS=192.168.1.24:19092
+      - KAFKA_CLIENT_ID=my-client
+      - KAFKA_TOPIC=foo
     networks:
       - default
