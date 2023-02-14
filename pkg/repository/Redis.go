@@ -3,6 +3,7 @@ package repository
 import (
 	"EFpractic2/models"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/go-redis/cache/v8"
 	"github.com/go-redis/redis/v8"
@@ -25,7 +26,7 @@ func (r *Redis) GetBook(ctx context.Context, bookName string) (models.Book, erro
 }
 
 func (r *Redis) CacheBook(ctx context.Context, book *models.Book) error {
-	mycache := cache.New(&cache.Options{
+	/*mycache := cache.New(&cache.Options{
 		Redis: r.Client,
 	})
 
@@ -37,21 +38,21 @@ func (r *Redis) CacheBook(ctx context.Context, book *models.Book) error {
 	if err != nil {
 		return fmt.Errorf("redis - CreateBook - Set: %w", err)
 	}
-	return nil
+	return nil*/
+	return r.ProduceBook(ctx, book)
 }
 
-func (c *Redis) RedisStreamInit(ctx context.Context) error {
+// ProduceBook add user to the "example" stream
+func (c *Redis) ProduceBook(ctx context.Context, book *models.Book) error {
+	bookJson, _ := json.Marshal(book)
 	_, err := c.Client.XAdd(ctx, &redis.XAddArgs{
-		Stream: "example ",
+		Stream: "example",
+		Values: map[string]interface{}{
+			"data": bookJson,
+		},
 	}).Result()
 	if err != nil {
 		return fmt.Errorf("redis - RedisStreamInit - XAdd: %w", err)
 	}
-
-	_, err = c.Client.XGroupCreate(ctx, "example", "user", "").Result()
-	if err != nil {
-		return fmt.Errorf("redis - RedisStreamInit - XGroupCreate: %w", err)
-	}
-
 	return nil
 }
