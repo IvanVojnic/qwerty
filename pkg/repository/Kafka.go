@@ -26,11 +26,9 @@ func (k *KafkaConn) CreateBookKafka(ctx context.Context, book *models.Book) erro
 	a, err := k.writerConn.WriteMessages(
 		kafka.Message{Value: []byte("hello world!")},
 	)
-
 	if err != nil {
 		return fmt.Errorf("error while sending book to antother ms, %s", err)
 	}
-
 	fmt.Print(a)
 	return nil
 }
