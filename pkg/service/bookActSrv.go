@@ -3,7 +3,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 
 	"EFpractic2/models"
@@ -24,22 +23,31 @@ type BookCache interface {
 	CacheBook(ctx context.Context, book *models.Book) error
 }
 
+type BookKafka interface {
+	CreateBookKafka(ctx context.Context, book *models.Book) error
+}
+
 // BookActSrv wrapper for bookAP repo
 type BookActSrv struct {
 	repo  BookAct
 	cache BookCache
+	kafka BookKafka
 }
 
 // NewBookActSrv used to init BookAP
-func NewBookActSrv(repo BookAct, cache BookCache) *BookActSrv {
-	return &BookActSrv{repo: repo, cache: cache}
+func NewBookActSrv(repo BookAct, cache BookCache, kafka BookKafka) *BookActSrv {
+	return &BookActSrv{repo: repo, cache: cache, kafka: kafka}
 }
 
 // CreateBook used to create book
 func (s *BookActSrv) CreateBook(ctx context.Context, book models.Book) error {
-	err := s.cache.CacheBook(ctx, &book)
+	/*err := s.cache.CacheBook(ctx, &book)
 	if err != nil {
 		return fmt.Errorf("error while caching, %s", err)
+	}*/
+	err := s.kafka.CreateBookKafka(ctx, &book)
+	if err != nil {
+		return err
 	}
 	return s.repo.CreateBook(ctx, &book)
 }

@@ -7,6 +7,7 @@ import (
 	"EFpractic2/pkg/handler"
 	"EFpractic2/pkg/repository"
 	"EFpractic2/pkg/service"
+	"github.com/segmentio/kafka-go"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"context"
@@ -71,6 +72,17 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 	defer rdb.Close()
 	rds := &repository.Redis{Client: *rdb}
 
+	network := "tcp"
+	address := "127.0.0.1:9092"
+	topic := "myTopic"
+	partition := 0
+	conn, errKafka := kafka.DialLeader(context.Background(), network, address, topic, partition)
+	if errKafka != nil {
+		log.WithFields(log.Fields{
+			"Error connection to database rep.NewPostgresDB()": errKafka,
+		}).Fatal("DB ERROR CONNECTION")
+	}
+	kafkaWriter := repository.NewKafkaConn(conn)
 	switch dbType {
 	case 0:
 		db, err := repository.NewPostgresDB(cfg)
@@ -84,7 +96,7 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 		bookRepo := repository.NewBookActPostgres(db)
 		imgRepo := repository.NewImgPostgres(db)
 		profileServ = service.NewAuthService(profileRepo)
-		bookServ = service.NewBookActSrv(bookRepo, rds)
+		bookServ = service.NewBookActSrv(bookRepo, rds, kafkaWriter)
 		imgServ = service.NewImgUpSrv(imgRepo)
 	case 1:
 		mDB, err := repository.NewMongoDB(cfg)
@@ -97,7 +109,7 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 
 		bookRepo := repository.NewBookActMongo(mDB)
 
-		bookServ = service.NewBookActSrv(bookRepo, rds)
+		bookServ = service.NewBookActSrv(bookRepo, rds, kafkaWriter)
 	}
 
 	profileHandlers := handler.NewHandler(profileServ, bookServ, imgServ)
