@@ -55,6 +55,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rabbitmq/amqp091-go v1.7.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/segmentio/kafka-go v0.4.38 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect

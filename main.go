@@ -3,12 +3,13 @@ package main
 
 import (
 	_ "EFpractic2/docs"
+	"EFpractic2/models"
 	"EFpractic2/pkg/config"
 	"EFpractic2/pkg/handler"
 	"EFpractic2/pkg/repository"
 	"EFpractic2/pkg/service"
-	"github.com/segmentio/kafka-go"
-	echoSwagger "github.com/swaggo/echo-swagger"
+	"encoding/json"
+	"time"
 
 	"context"
 	"os"
@@ -16,7 +17,10 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/segmentio/kafka-go"
 	log "github.com/sirupsen/logrus"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 // @title Swagger EF_CRUD API
@@ -83,6 +87,42 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 		}).Fatal("DB ERROR CONNECTION")
 	}
 	kafkaWriter := repository.NewKafkaConn(conn)
+
+	connRMQ, err := amqp.Dial("amqp://rabbit:rabbit@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+	defer connRMQ.Close()
+
+	chRMQ, err := connRMQ.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer chRMQ.Close()
+
+	q, err := chRMQ.QueueDeclare(
+		"hello", // name
+		false,   // durable
+		false,   // delete when unused
+		false,   // exclusive
+		false,   // no-wait
+		nil,     // arguments
+	)
+	failOnError(err, "Failed to declare a queue")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	book := models.Book{BookName: "name", BookNew: true, BookYear: 2002}
+	body, _ := json.Marshal(book)
+	err = chRMQ.PublishWithContext(ctx,
+		"",     // exchange
+		q.Name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        body,
+		})
+	failOnError(err, "Failed to publish a message")
+	log.Printf(" [x] Sent %s\n", body)
+
 	switch dbType {
 	case 0:
 		db, err := repository.NewPostgresDB(cfg)
@@ -114,4 +154,10 @@ func initProjectStruct(cfg *config.Config, e *echo.Echo, dbType int) {
 
 	profileHandlers := handler.NewHandler(profileServ, bookServ, imgServ)
 	profileHandlers.InitRoutes(e)
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
 }

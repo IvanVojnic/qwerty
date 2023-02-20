@@ -72,6 +72,18 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
+  rabbitmq:
+    image: rabbitmq:3.11.9-management
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbit
+      - RABBITMQ_DEFAULT_PASS=rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - default
   app:
     build:
       context: .
